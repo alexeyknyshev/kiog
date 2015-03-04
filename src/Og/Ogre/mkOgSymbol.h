@@ -9,7 +9,7 @@
 #include <Object/mkTyped.h>
 #include <Og/mkOgForward.h>
 
-#include <OGRE/OgrePrerequisites.h>
+#include <OgrePrerequisites.h>
 
 namespace mk
 {

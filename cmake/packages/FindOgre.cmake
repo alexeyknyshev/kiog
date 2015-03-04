@@ -1,4 +1,4 @@
-# Custom cmake module for kiui to find Ogre
+# Custom cmake module for kiog to find Ogre
 
 include(FindPackageHandleStandardArgs)
 
@@ -24,5 +24,6 @@ endif()
 find_path(OGRE_INCLUDE_DIR NAMES OGRE/Ogre.h PATHS ${OGRE_INCLUDE_PATHS} NO_DEFAULT_PATH)
 
 find_library(OGRE_LIBRARIES NAMES OgreMain PATHS ${OGRE_LIB_PATHS} PATH_SUFFIXES a lib64 lib NO_DEFAULT_PATH)
+find_library(OGRE_LIBRARIES_DEBUG NAMES OgreMain_d PATHS ${OGRE_LIB_PATHS} PATH_SUFFIXES a lib64 lib NO_DEFAULT_PATH)
 
 find_package_handle_standard_args(OGRE DEFAULT_MSG OGRE_LIBRARIES OGRE_INCLUDE_DIR)

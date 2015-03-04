@@ -5,7 +5,7 @@
 #ifndef MK_OGRESHAPE_H_INCLUDED
 #define MK_OGRESHAPE_H_INCLUDED
 
-#include <OGRE/OgreColourValue.h>
+#include <OgreColourValue.h>
 
 namespace Ogre
 {

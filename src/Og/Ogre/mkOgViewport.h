@@ -10,7 +10,7 @@
 #include <Og/Ogre/mkOgObject.h>
 
 /* Ogre */
-#include <OGRE/OgreMaterialManager.h>
+#include <OgreMaterialManager.h>
 
 namespace Ogre
 {

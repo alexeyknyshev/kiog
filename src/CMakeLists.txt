@@ -41,10 +41,10 @@ if (MSVC)
 	add_definitions("-D_CRT_SECURE_NO_WARNINGS")
 endif ()
 
-add_library(kiog SHARED ${SOURCE_FILES})
+add_library(kiog SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
-target_link_libraries(kiog ${OGRE_LIBRARIES})
-target_link_libraries(kiog ${OIS_LIBRARIES})
+target_link_libraries(kiog optimized ${OGRE_LIBRARIES} debug ${OGRE_LIBRARIES_DEBUG})
+target_link_libraries(kiog optimized ${OIS_LIBRARIES} debug ${OIS_LIBRARIES_DEBUG})
 target_link_libraries(kiog ${KIUI_LIBRARIES})
 
 include_directories(${OGRE_INCLUDE_DIR})

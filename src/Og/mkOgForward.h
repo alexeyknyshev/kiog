@@ -10,7 +10,7 @@
 #include <Sound/mkSoundForward.h>
 #include <Ui/mkUiForward.h>
 
-#include <OGRE/OgrePrerequisites.h>
+#include <OgrePrerequisites.h>
 
 namespace MOC
 {

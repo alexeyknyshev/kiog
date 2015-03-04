@@ -10,7 +10,7 @@
 #include <Og/mkOgForward.h>
 #include <Ui/mkRenderWindow.h>
 
-#include <OGRE/OgreWindowEventUtilities.h>
+#include <OgreWindowEventUtilities.h>
 
 namespace mk
 {

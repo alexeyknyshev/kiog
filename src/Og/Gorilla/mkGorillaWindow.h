@@ -9,7 +9,7 @@
 #include <Og/mkOgForward.h>
 #include <Ui/Frame/mkInk.h>
 
-#include <OGRE/Ogre.h>
+#include <Ogre.h>
 #include <Og/Gorilla/Gorilla.h>
 
 #include <Og/Gorilla/RectPacking/Rect.h>

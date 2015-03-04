@@ -2,8 +2,8 @@
 //  This software is provided 'as-is' under the zlib License, see the LICENSE.txt file.
 //  This notice and the license may not be removed or altered from any source distribution.
 
-#ifndef MK_OGREFRONT_H_INCLUDED
-#define MK_OGREFRONT_H_INCLUDED
+#ifndef MK_OGMODULE_H_INCLUDED
+#define MK_OGMODULE_H_INCLUDED
 
 /* Graphic Module */
 #include <Object/mkTyped.h>
@@ -67,4 +67,4 @@ namespace mk
     };
 }
 
-#endif // MK_OGREFRONT_H_INCLUDED
+#endif // MK_OGMODULE_H_INCLUDED

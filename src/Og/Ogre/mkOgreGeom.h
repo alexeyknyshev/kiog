@@ -7,7 +7,7 @@
 
 /* mk headers */
 #include <Og/mkOgForward.h>
-#include <OGRE/OgreMatrix4.h>
+#include <OgreMatrix4.h>
 
 namespace mk
 {
