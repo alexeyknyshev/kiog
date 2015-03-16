@@ -45,7 +45,7 @@ namespace mk
 		OgreModule(const string& pluginsPath = "plugins.cfg", const string& resourcePath = "");
 		~OgreModule();
 
-		Ogre::Root* ogreRoot() { return mOgreRoot.get(); }
+		Ogre::Root* ogreRoot() { return mOgreRoot; }
 		bool contextActive() { return mContextActive; }
 
 		void initStart();
@@ -64,12 +64,13 @@ namespace mk
 	private:
 		void setupResources();
 		void setupHiddenWindow();
+		void setupRenderer(const string& name);
 		void setupFirstRenderer();
 
 		void loadResources();
 
 	private:
-		unique_ptr<Ogre::Root> mOgreRoot;
+		Ogre::Root* mOgreRoot;
 		string mResourcePath;
 		bool mContextActive;
 	};

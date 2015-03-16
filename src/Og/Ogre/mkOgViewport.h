@@ -28,7 +28,8 @@ namespace mk
 	{
 		WORLDPAGE_OGRE_MASK = 1 << 0,
 		SHADEABLE_OGRE_MASK = 1 << 1,
-		SELECTABLE_OGRE_MASK = 1 << 2
+		SELECTABLE_OGRE_MASK = 1 << 2,
+		SPACESHEET_OGRE_MASK = 1 << 3
 	};
 
 	class MK_OG_EXPORT OgViewport
@@ -51,7 +52,7 @@ namespace mk
 		void resize();
 	
 		Object* pickObject(float x, float y, uint32_t queryMask = 0xFFFFFFFF);
-		Ogre::Vector3 pickLocation(float x, float y);
+		void pickLocation(float x, float y, float* location);
 
 	protected:
 		Ogre::Camera* mCamera;
@@ -63,6 +64,7 @@ namespace mk
 		float mHeight;
 
 		MOC::CollisionTools* mCollisionTools;
+		unique_ptr<MOC::CollisionTools> mUniqueCollisionTools;
 	};
 }
 

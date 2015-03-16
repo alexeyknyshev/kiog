@@ -102,11 +102,7 @@ namespace mk
 		, mImage(nullptr)
 		, mCaption(nullptr)
 		, mImageSkin(nullptr)
-		, mVisible(frame->visible())
-	{
-		if(mVisible)
-			this->show();
-	}
+	{}
 
 	GorillaInk::~GorillaInk()
 	{
@@ -124,6 +120,9 @@ namespace mk
 		}
 
 		mVisible = true;
+
+		this->updateStyle();
+		this->updateContent();
 	}
 
 	void GorillaInk::hide()
@@ -149,6 +148,11 @@ namespace mk
 
 	float GorillaInk::contentSize(Dimension dim)
 	{
+		if(mImage)
+		{
+			Gorilla::Sprite* sprite = mLayer->layer()->_getSprite(mFrame->widget()->image());
+			return dim == DIM_X ? sprite->spriteWidth : sprite->spriteHeight;
+		}
 		if(mCaption)
 		{
 			Ogre::Vector2 size;
@@ -232,18 +236,18 @@ namespace mk
 		if(mFrame->inkstyle()->mEmpty || !mVisible)
 			return;
 
-		if(mImage && mFrame->widget()->image() == "")
+		if(mImage && mFrame->widget()->image().empty())
 		{
 			mLayer->layer()->destroyRectangle(mImage);
 			mImage = nullptr;
 			return;
 		}
-		else if(!mImage && mFrame->widget()->image() != "")
+		else if(!mImage && !mFrame->widget()->image().empty())
 		{
 			mImage = mLayer->layer()->createRectangle(mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), mFrame->dsize(DIM_X), mFrame->dsize(DIM_Y));
 		}
 
-		if(mFrame->widget()->image() != "")
+		if(!mFrame->widget()->image().empty())
 		{
 			mImage->background_image(Ogre::String(mFrame->widget()->image()));
 		}
@@ -254,20 +258,20 @@ namespace mk
 		if(mFrame->inkstyle()->mEmpty || !mVisible)
 			return;
 
-		if(mCaption && mFrame->widget()->label() == "")
+		if(mCaption && mFrame->widget()->label().empty())
 		{
 			mLayer->layer()->destroyCaption(mCaption);
 			mCaption = nullptr;
 			return;
 		}
-		else if(!mCaption && mFrame->widget()->label() != "")
+		else if(!mCaption && !mFrame->widget()->label().empty())
 		{
 			mCaption = mLayer->layer()->createCaption(9, mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), mFrame->widget()->label());
 
 			//std::cerr << "Caption at : " << mFrame->dabsolute(DIM_X) << " , " << mFrame->dabsolute(DIM_Y) << std::endl;
 		}
 
-		if(mFrame->widget()->label() != "")
+		if(!mFrame->widget()->label().empty())
 		{
 			mCaption->text(mFrame->widget()->label());
 			mCaption->size(mFrame->dsize(DIM_X), mFrame->dsize(DIM_Y));

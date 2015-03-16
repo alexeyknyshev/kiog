@@ -29,10 +29,24 @@
 
 	*/
 
-#include "Gorilla.h"
+#include "Gorilla21.h"
 
 #include <OgreId.h>
+#include <OgreHlmsDatablock.h>
+
 #include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorWorkspaceDef.h>
+#include <Compositor/OgreCompositorWorkspace.h>
+#include <Compositor/OgreCompositorNodeDef.h>
+#include <Compositor/Pass/OgreCompositorPass.h>
+#include <Compositor/Pass/OgreCompositorPassDef.h>
+#include <Compositor/Pass/OgreCompositorPassProvider.h>
+
+#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
+#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
+
+#include <OgrePass.h>
+
 #include <iostream>
 
 #pragma warning ( disable : 4244 )
@@ -78,12 +92,6 @@ template<> Gorilla::Silverback* Ogre::Singleton<Gorilla::Silverback>::msSingleto
 
 namespace Gorilla
 {
-
-	enum
-	{
-		SCREEN_RENDERQUEUE = Ogre::RENDER_QUEUE_OVERLAY
-	};
-
 	Ogre::ColourValue rgb(Ogre::uchar r, Ogre::uchar g, Ogre::uchar b, Ogre::uchar a)
 	{
 		static const Ogre::Real inv255 = Ogre::Real(0.00392156863);
@@ -472,107 +480,32 @@ namespace Gorilla
 		mSprites[name] = sprite;
 	}
 
-	Ogre::MaterialPtr TextureAtlas::createOrGet2DMasterMaterial()
-	{
-		Ogre::MaterialPtr d2Material = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D");
-		if(d2Material.isNull() == false)
-		{
-			Ogre::Pass* pass = d2Material->getTechnique(0)->getPass(0);
-
-			if(pass->hasVertexProgram())
-			{
-				Ogre::GpuProgramPtr gpuPtr = pass->getVertexProgram();
-				gpuPtr->load();
-			}
-
-			if(pass->hasFragmentProgram())
-			{
-				Ogre::GpuProgramPtr gpuPtr = pass->getFragmentProgram();
-				gpuPtr->load();
-			}
-
-			return d2Material;
-		}
-
-		d2Material = Ogre::MaterialManager::getSingletonPtr()->create("Gorilla2D", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		Ogre::Pass* pass = d2Material->getTechnique(0)->getPass(0);
-		pass->setCullingMode(Ogre::CULL_NONE);
-		pass->setDepthCheckEnabled(false);
-		pass->setDepthWriteEnabled(false);
-		pass->setLightingEnabled(false);
-		pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-
-		Ogre::TextureUnitState* texUnit = pass->createTextureUnitState();
-		texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
-		texUnit->setTextureFiltering(Ogre::FO_NONE, Ogre::FO_NONE, Ogre::FO_NONE);
-
-		return d2Material;
-	}
-
-	Ogre::MaterialPtr TextureAtlas::createOrGet3DMasterMaterial()
-	{
-		Ogre::MaterialPtr d3Material = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla3D");
-		if(d3Material.isNull() == false)
-		{
-			Ogre::Pass* pass = d3Material->getTechnique(0)->getPass(0);
-
-			if(pass->hasVertexProgram())
-			{
-				Ogre::GpuProgramPtr gpuPtr = pass->getVertexProgram();
-				gpuPtr->load();
-			}
-
-			if(pass->hasFragmentProgram())
-			{
-				Ogre::GpuProgramPtr gpuPtr = pass->getFragmentProgram();
-				gpuPtr->load();
-			}
-
-			return d3Material;
-		}
-
-		d3Material = Ogre::MaterialManager::getSingletonPtr()->create("Gorilla3D", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		Ogre::Pass* pass = d3Material->getTechnique(0)->getPass(0);
-		pass->setCullingMode(Ogre::CULL_NONE);
-		pass->setDepthCheckEnabled(false);
-		pass->setDepthWriteEnabled(false);
-		pass->setLightingEnabled(false);
-		pass->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
-
-		Ogre::TextureUnitState* texUnit = pass->createTextureUnitState();
-		texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
-		texUnit->setTextureFiltering(Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC);
-
-		return d3Material;
-	}
-
-
 	void  TextureAtlas::_create2DMaterial()
 	{
-
 		std::string matName = "Gorilla2D." + mTexture->getName();
-		m2DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName(matName);
-
-		if(m2DMaterial.isNull())
-			m2DMaterial = createOrGet2DMasterMaterial()->clone(matName);
-
+		m2DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D")->clone(matName);
 		m2DPass = m2DMaterial->getTechnique(0)->getPass(0);
-		m2DPass->getTextureUnitState(0)->setTextureName(mTexture->getName());
 
+		Ogre::TextureUnitState* texUnit = m2DPass->createTextureUnitState();
+		texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		texUnit->setTextureFiltering(Ogre::FO_NONE, Ogre::FO_NONE, Ogre::FO_NONE);
+		//texUnit->setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_NONE);
+		m2DPass->setVertexColourTracking(Ogre::TVC_DIFFUSE);
+
+		m2DPass->getTextureUnitState(0)->setTexture(mTexture);
 	}
 
 	void  TextureAtlas::_create3DMaterial()
 	{
-
 		std::string matName = "Gorilla3D." + mTexture->getName();
-		m3DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName(matName);
-
-		if(m3DMaterial.isNull())
-			m3DMaterial = createOrGet3DMasterMaterial()->clone(matName);
-
+		m3DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla3D")->clone(matName);
 		m3DPass = m3DMaterial->getTechnique(0)->getPass(0);
-		m3DPass->getTextureUnitState(0)->setTextureName(mTexture->getName());
 
+		Ogre::TextureUnitState* texUnit = m3DPass->createTextureUnitState();
+		texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		texUnit->setTextureFiltering(Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC);
+		
+		m3DPass->getTextureUnitState(0)->setTexture(mTexture);
 	}
 
 	void  TextureAtlas::_calculateCoordinates()
@@ -688,12 +621,80 @@ namespace Gorilla
 
 	}
 
+	class GorillaPassDef : public Ogre::CompositorPassDef
+	{
+	public:
+		GorillaPassDef(Ogre::uint32 rtIndex)
+			: Ogre::CompositorPassDef(Ogre::PASS_CUSTOM, rtIndex)
+		{}
+	};
+
+	class GorillaPass : public Ogre::CompositorPass
+	{
+	public:
+		GorillaPass(const Ogre::CompositorPassDef* definition, const Ogre::CompositorChannel& target, Ogre::CompositorNode* parentNode, Ogre::Camera* camera)
+			: Ogre::CompositorPass(definition, target, parentNode)
+			, mCamera(camera)
+		{}
+
+		virtual void execute(const Ogre::Camera* lodCameraconst)
+		{
+			Screen* screen = Ogre::any_cast<Screen*>(mCamera->getUserAny());
+			screen->renderOnce();
+		}
+
+	protected:
+		Ogre::Camera* mCamera;
+	};
+
+	Ogre::CompositorPassDef* GorillaPassProvider::addPassDef(Ogre::CompositorPassType passType, Ogre::IdString customId, Ogre::uint32 rtIndex, Ogre::CompositorNodeDef* parentNodeDef)
+	{
+		if(customId == mPassId)
+			return OGRE_NEW GorillaPassDef(rtIndex);
+		return nullptr;
+	}
+
+	Ogre::CompositorPass* GorillaPassProvider::addPass(const Ogre::CompositorPassDef* definition, Ogre::Camera* camera, Ogre::CompositorNode* parentNode
+		, const Ogre::CompositorChannel& target, Ogre::SceneManager* sceneManager)
+	{
+		return OGRE_NEW GorillaPass(definition, target, parentNode, camera);
+	}
+
+	Ogre::IdString GorillaPassProvider::mPassId("Gorilla");
 
 	Silverback::Silverback()
 	{
-
 		Ogre::Root::getSingletonPtr()->addFrameListener(this);
 
+		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
+		compositorManager->setCompositorPassProvider(&mPassProvider);
+
+		Ogre::CompositorNodeDef* nodeDef = compositorManager->addNodeDefinition("AutoGen " + (Ogre::IdString("Gorilla Workspace") + Ogre::IdString("/Node")).getReleaseText());
+
+		//Input texture
+		nodeDef->addTextureSourceName("WindowRT", 0, Ogre::TextureDefinitionBase::TEXTURE_INPUT);
+
+		nodeDef->setNumTargetPass(1);
+		{
+			Ogre::CompositorTargetDef* targetDef = nodeDef->addTargetPass("WindowRT");
+			targetDef->setNumPasses(3);
+			{
+				{
+					Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>(targetDef->addPass(Ogre::PASS_CLEAR));
+					passClear->mColourValue = Ogre::ColourValue::Black;
+				}
+				{
+					Ogre::CompositorPassSceneDef* passScene = static_cast<Ogre::CompositorPassSceneDef*>(targetDef->addPass(Ogre::PASS_SCENE));
+					passScene->mShadowNode = Ogre::IdString();
+				}
+				{
+					GorillaPassDef* passGorilla = static_cast<GorillaPassDef*>(targetDef->addPass(Ogre::PASS_CUSTOM, GorillaPassProvider::mPassId));
+				}
+			}
+		}
+
+		Ogre::CompositorWorkspaceDef* workDef = compositorManager->addWorkspaceDefinition("Gorilla Workspace");
+		workDef->connectOutput(nodeDef->getName(), 0);
 	}
 
 	Silverback::~Silverback()
@@ -733,11 +734,12 @@ namespace Gorilla
 		return createScreen(sceneMgr, viewport, atlas);
 	}
 
-	Screen* Silverback::createScreen(Ogre::SceneManager* sceneMgr, Ogre::RenderTarget *viewport, TextureAtlas *atlas)
+	Screen* Silverback::createScreen(Ogre::SceneManager* sceneMgr, Ogre::RenderTarget* viewport, TextureAtlas* atlas)
 	{
 		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
-		compositorManager->addWorkspace(sceneMgr, viewport, sceneMgr->getCameras().at(0), "Basic Workspace", true);
+		Ogre::CompositorWorkspace* workspace = compositorManager->addWorkspace(sceneMgr, viewport, sceneMgr->getCameras().at(0), "Gorilla Workspace", true);
 		Screen* screen = OGRE_NEW Screen(sceneMgr, viewport, atlas);
+		workspace->getDefaultCamera()->setUserAny(Ogre::Any(screen));
 		mScreens.push_back(screen);
 		return screen;
 	}
@@ -864,33 +866,33 @@ namespace Gorilla
 	void LayerContainer::_createVertexBuffer(size_t initialSize = 32)
 	{
 		mVertexBufferSize = initialSize * 6;
-		mRenderOpPtr->vertexData = OGRE_NEW Ogre::VertexData;
+		mRenderOpPtr->vertexData = OGRE_NEW Ogre::v1::VertexData;
 		mRenderOpPtr->vertexData->vertexStart = 0;
 
-		Ogre::VertexDeclaration* vertexDecl = mRenderOpPtr->vertexData->vertexDeclaration;
+		Ogre::v1::VertexDeclaration* vertexDecl = mRenderOpPtr->vertexData->vertexDeclaration;
 		size_t offset = 0;
 
 		// Position.
 		vertexDecl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
+		offset += Ogre::v1::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
 
 		// Colour
 		vertexDecl->addElement(0, offset, Ogre::VET_FLOAT4, Ogre::VES_DIFFUSE);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT4);
+		offset += Ogre::v1::VertexElement::getTypeSize(Ogre::VET_FLOAT4);
 
 		// Texture Coordinates
 		vertexDecl->addElement(0, offset, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
 
-		mVertexBuffer = Ogre::HardwareBufferManager::getSingletonPtr()
+		mVertexBuffer = Ogre::v1::HardwareBufferManager::getSingletonPtr()
 			->createVertexBuffer(
 			vertexDecl->getVertexSize(0),
 			mVertexBufferSize,
-			Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
+			Ogre::v1::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
 			false
 			);
 
 		mRenderOpPtr->vertexData->vertexBufferBinding->setBinding(0, mVertexBuffer);
-		mRenderOpPtr->operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
+		mRenderOpPtr->operationType = Ogre::v1::RenderOperation::OT_TRIANGLE_LIST;
 		mRenderOpPtr->useIndexes = false;
 	}
 
@@ -915,10 +917,10 @@ namespace Gorilla
 			while(newVertexBufferSize < requestedSize)
 				newVertexBufferSize <<= 1;
 
-			mVertexBuffer = Ogre::HardwareBufferManager::getSingletonPtr()->createVertexBuffer(
+			mVertexBuffer = Ogre::v1::HardwareBufferManager::getSingletonPtr()->createVertexBuffer(
 				mRenderOpPtr->vertexData->vertexDeclaration->getVertexSize(0),
 				newVertexBufferSize,
-				Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
+				Ogre::v1::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
 				false
 				);
 			mVertexBufferSize = newVertexBufferSize;
@@ -1048,7 +1050,7 @@ namespace Gorilla
 
 		_resizeVertexBuffer(knownVertexCount);
 		//std::cout << "+++ Known Vertex Count is: " << knownVertexCount << "\n";
-		Vertex* writeIterator = (Vertex*)mVertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+		Vertex* writeIterator = (Vertex*)mVertexBuffer->lock(Ogre::v1::HardwareBuffer::HBL_DISCARD);
 
 		size_t i = 0;
 		IndexData* indexData = 0;
@@ -1088,24 +1090,13 @@ namespace Gorilla
 
 		mVertexTransform.makeTransform(Ogre::Vector3::ZERO, mScale, Ogre::Quaternion(1, 0, 0, 0));
 
-		mSceneMgr->addRenderQueueListener(this);
 		_createVertexBuffer();
 	}
 
 	Screen::~Screen()
 	{
-		mSceneMgr->removeRenderQueueListener(this);
-
 		for(Viewport* viewport : mViewports)
 			OGRE_DELETE viewport;
-	}
-
-
-	void Screen::renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation, bool& repeatThisInvocation)
-	{
-		if(queueGroupId == Ogre::RENDER_QUEUE_OVERLAY &&  mRenderSystem->_getViewport() == mViewport->getViewport(1) && mRenderSystem->_getViewport()->getOverlaysEnabled())
-			if(mIsVisible && mLayers.size())
-				renderOnce();
 	}
 
 	void Screen::_prepareRenderSystem()
@@ -1114,6 +1105,7 @@ namespace Gorilla
 		mRenderSystem->_setProjectionMatrix(Ogre::Matrix4::IDENTITY);
 		mRenderSystem->_setViewMatrix(Ogre::Matrix4::IDENTITY);
 		mSceneMgr->_setPass(mAtlas->get2DPass());
+		mRenderSystem->_setHlmsBlendblock(mAtlas->get2DPass()->getBlendblock());
 	}
 
 	void Screen::renderOnce()
@@ -1163,6 +1155,19 @@ namespace Gorilla
 		if(mRenderOp.vertexData->vertexCount)
 		{
 			_prepareRenderSystem();
+
+			/*Ogre::HlmsBlendblock blendblock;
+
+			Ogre::Pass::_getBlendFlags(Ogre::SBT_TRANSPARENT_ALPHA,
+				blendblock.mSourceBlendFactor,
+				blendblock.mDestBlendFactor);
+
+			Ogre::Pass::_getBlendFlags(Ogre::SBT_TRANSPARENT_ALPHA,
+				blendblock.mSourceBlendFactorAlpha,
+				blendblock.mDestBlendFactorAlpha);
+
+			mRenderSystem->_setHlmsBlendblock(&blendblock);*/
+			//mRenderOp.
 			mRenderSystem->_render(mRenderOp);
 		}
 	}
@@ -1262,33 +1267,33 @@ namespace Gorilla
 
 	void Viewport::_writeRenderOp()
 	{
-		mRenderOp.vertexData = OGRE_NEW Ogre::VertexData;
+		mRenderOp.vertexData = OGRE_NEW Ogre::v1::VertexData;
 		mRenderOp.vertexData->vertexStart = 0;
 		mRenderOp.vertexData->vertexCount = 6;
 
-		Ogre::VertexDeclaration* vertexDecl = mRenderOp.vertexData->vertexDeclaration;
+		Ogre::v1::VertexDeclaration* vertexDecl = mRenderOp.vertexData->vertexDeclaration;
 		size_t offset = 0;
 
 		// Position.
 		vertexDecl->addElement(0, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
+		offset += Ogre::v1::VertexElement::getTypeSize(Ogre::VET_FLOAT3);
 
 		// Colour
 		vertexDecl->addElement(0, offset, Ogre::VET_FLOAT4, Ogre::VES_DIFFUSE);
-		offset += Ogre::VertexElement::getTypeSize(Ogre::VET_FLOAT4);
+		offset += Ogre::v1::VertexElement::getTypeSize(Ogre::VET_FLOAT4);
 
 		// Texture Coordinates
 		vertexDecl->addElement(0, offset, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
 
-		mVertexBuffer = Ogre::HardwareBufferManager::getSingletonPtr()
+		mVertexBuffer = Ogre::v1::HardwareBufferManager::getSingletonPtr()
 			->createVertexBuffer(
 			vertexDecl->getVertexSize(0),
 			6,
-			Ogre::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
+			Ogre::v1::HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE,
 			false
 			);
 
-		Vertex* writeIterator = (Vertex*)mVertexBuffer->lock(Ogre::HardwareBuffer::HBL_DISCARD);
+		Vertex* writeIterator = (Vertex*)mVertexBuffer->lock(Ogre::v1::HardwareBuffer::HBL_DISCARD);
 
 		for(size_t i = 0; i < mVertices.size(); i++)
 		{
@@ -1298,7 +1303,7 @@ namespace Gorilla
 		mVertexBuffer->unlock();
 
 		mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mVertexBuffer);
-		mRenderOp.operationType = Ogre::RenderOperation::OT_TRIANGLE_LIST;
+		mRenderOp.operationType = Ogre::v1::RenderOperation::OT_TRIANGLE_LIST;
 		mRenderOp.useIndexes = false;
 	}
 
@@ -1331,7 +1336,7 @@ namespace Gorilla
 
 
 	ScreenRenderable::ScreenRenderable(Ogre::IdType id, Ogre::ObjectMemoryManager* objectMemoryManager, Ogre::SceneManager* sceneMgr, const Ogre::Vector2& maxSize, TextureAtlas* atlas)
-		: SimpleRenderable(id, objectMemoryManager), LayerContainer(atlas), mMaxSize(maxSize)
+		: SimpleRenderable(id, objectMemoryManager, sceneMgr), LayerContainer(atlas), mMaxSize(maxSize)
 		, mSceneMgr(sceneMgr)
 	{
 		mRenderOpPtr = &mRenderOp;

@@ -9,8 +9,11 @@
 #include <Og/mkOgForward.h>
 #include <Ui/Frame/mkInk.h>
 
-/* Gorilla */
+#ifdef GORILLA_V21
+#include <Og/Gorilla/Gorilla21.h>
+#else
 #include <Og/Gorilla/Gorilla.h>
+#endif
 
 namespace mk
 {
@@ -56,7 +59,6 @@ namespace mk
 		Gorilla::Rectangle* mImage; // Optional
 		Gorilla::Caption* mCaption; // Optional
 		unique_ptr<GorillaImage> mImageSkin;
-		bool mVisible;
 	};
 
 }

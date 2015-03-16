@@ -2,8 +2,8 @@
 //  This software is provided 'as-is' under the zlib License, see the LICENSE.txt file.
 //  This notice and the license may not be removed or altered from any source distribution.
 
-#ifndef MK_OGMODULE_H_INCLUDED
-#define MK_OGMODULE_H_INCLUDED
+#ifndef MK_OGREFRONT_H_INCLUDED
+#define MK_OGREFRONT_H_INCLUDED
 
 /* Graphic Module */
 #include <Object/mkTyped.h>
@@ -12,6 +12,8 @@
 
 namespace mk
 {
+	MK_OG_EXPORT Window* createOgTestWindow(Form* parent);
+
 	class MK_OG_EXPORT OgWindow : public Object, public Typed<OgWindow>
 	{
 	public:
@@ -50,21 +52,15 @@ namespace mk
 		OgWindow* createWindow(const string& name, int width, int height, bool fullScreen, User* user = nullptr);
 
 		OgreModule* ogreModule() { return mOgreModule.get(); }
-
-#ifdef KIOG_SOUND
 		SoundManager* soundManager() { return mSoundManager.get(); }
-#endif
 
     private:
 		unique_ptr<OgreModule> mOgreModule;
-		unique_ptr<OISInput> mInput;
-
-#ifdef KIOG_SOUND
 		unique_ptr<SoundManager> mSoundManager;
-#endif
+		unique_ptr<OISInput> mInput;
 
 		std::vector<unique_ptr<OgWindow>> mWindows;
     };
 }
 
-#endif // MK_OGMODULE_H_INCLUDED
+#endif // MK_OGREFRONT_H_INCLUDED

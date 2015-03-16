@@ -14,7 +14,6 @@
 #include <Ogre.h>
 #include <OgreRoot.h>
 #include <OgreConfigFile.h>
-//#include <OgreRTShaderSystem.h>
 #include <OgreBuildSettings.h>
 
 #include <Compositor/OgreCompositorManager2.h>
@@ -75,7 +74,7 @@ namespace mk
 
 
  	OgreModule::OgreModule(const string& pluginsPath, const string& resourcePath)
-		: mOgreRoot(make_unique<Ogre::Root>(pluginsPath, resourcePath + "ogre.cfg", resourcePath + "ogre.log"))
+		: mOgreRoot(new/*front*/Ogre::Root(pluginsPath, resourcePath + "ogre.cfg", resourcePath + "ogre.log"))
 		, mResourcePath(resourcePath)
 	{}
 
@@ -83,6 +82,7 @@ namespace mk
 	{
 		if(mOgreRoot)
 			mOgreRoot->shutdown();
+		delete mOgreRoot;
 	}
 
 	void OgreModule::initStart()
@@ -101,9 +101,11 @@ namespace mk
 
 	void OgreModule::configAuto()
 	{
-		this->setupFirstRenderer();
-
-		//mOgreRoot->installPlugin(OGRE_NEW Ogre::D3D11Plugin());
+#ifdef GORILLA_V21
+		this->setupRenderer("OpenGL 3+ Rendering Subsystem");
+#else
+		this->setupRenderer("OpenGL Rendering Subsystem");
+#endif
 
 		// initialize without creating window
 		mOgreRoot->getRenderSystem()->setConfigOption("Full Screen", "No");
@@ -174,18 +176,19 @@ namespace mk
 
 	void OgreModule::setupFirstRenderer()
 	{
-		// setup a renderer
-		Ogre::RenderSystem* renderer;
-		for(auto rend : mOgreRoot->getAvailableRenderers())
-		{
-			if(rend->getName() == "OpenGL Rendering Subsystem") // "OpenGL Rendering Subsystem"
-			{
-				renderer = rend;
-				break;
-			}
-		}
+		mOgreRoot->setRenderSystem(mOgreRoot->getAvailableRenderers().at(0));
+	}
 
-		mOgreRoot->setRenderSystem(renderer);
+	void OgreModule::setupRenderer(const string& name)
+	{
+		for(auto renderer : mOgreRoot->getAvailableRenderers())
+			if(renderer->getName() == name)
+			{
+				mOgreRoot->setRenderSystem(renderer);
+				return;
+			}
+
+		this->setupFirstRenderer();
 	}
 
 	unique_ptr<OgreWindow> OgreModule::createWindow(UiWindow* window, const string& name, int width, int height, bool fullScreen)

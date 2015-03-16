@@ -30,6 +30,9 @@ namespace mk
 	class OgreInputWindow;
 	class OgreModule;
 
+	class SpaceSheet;
+	class SpaceViewport;
+
 	class OgObject;
 	class OgViewport;
 	class OgWindow;

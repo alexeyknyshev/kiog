@@ -10,9 +10,12 @@
 #include <Object/Threading/mkScheduler.h>
 #include <Object/Store/mkArray.h>
 #include <Og/mkOgForward.h>
+#include <Core/Entity/mkEntityObserver.h>
 
 namespace mk
 {
+	//template class __declspec(dllimport) StoreObserver<Entity>;
+
 	class MK_OG_EXPORT OgObject : public Object
     {
     public:

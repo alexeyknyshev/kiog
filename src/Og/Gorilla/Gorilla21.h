@@ -34,7 +34,7 @@
 
 #include "Ogre.h"
 #include "OgreFrameListener.h"
-#include "OgreHardwareVertexBuffer.h"
+#include "Compositor/Pass/OgreCompositorPassProvider.h"
 
 #ifndef GORILLA_USES_EXCEPTIONS
 #  define GORILLA_USES_EXCEPTIONS 0
@@ -394,6 +394,18 @@ namespace Gorilla
 
 	};
 
+
+	class GorillaPassProvider : public Ogre::CompositorPassProvider
+	{
+	public:
+		Ogre::CompositorPassDef* addPassDef(Ogre::CompositorPassType passType, Ogre::IdString customId, Ogre::uint32 rtIndex, Ogre::CompositorNodeDef* parentNodeDef);
+
+		Ogre::CompositorPass* addPass(const Ogre::CompositorPassDef* definition, Ogre::Camera* camera, Ogre::CompositorNode* parentNode, const Ogre::CompositorChannel& target, Ogre::SceneManager* sceneManager);
+
+		static Ogre::IdString mPassId;
+	};
+
+
 	/* class. Silverback
 	   desc.
 	   Main singleton class for Gorilla
@@ -462,7 +474,7 @@ namespace Gorilla
 		bool frameStarted(const Ogre::FrameEvent& evt);
 
 	protected:
-
+		GorillaPassProvider mPassProvider;
 		std::map<Ogre::String, TextureAtlas*>  mAtlases;
 		std::vector<Screen*>                   mScreens;
 		std::vector<ScreenRenderable*>         mScreenRenderables;
@@ -525,10 +537,6 @@ namespace Gorilla
 
 		// @ monk
 		void addSprite(std::string name, float left, float top, float width, float height);
-
-		Ogre::MaterialPtr createOrGet2DMasterMaterial();
-
-		Ogre::MaterialPtr createOrGet3DMasterMaterial();
 
 		/*! function. getTexture
 			desc.
@@ -857,13 +865,13 @@ namespace Gorilla
 		bool  mIndexRedrawAll;
 
 		/// mVertexBuffer -- Compiled layers of all indexes go into here for rendering directly to the screen or scene.
-		Ogre::HardwareVertexBufferSharedPtr   mVertexBuffer;
+		Ogre::v1::HardwareVertexBufferSharedPtr   mVertexBuffer;
 
 		/// mVertexBufferSize -- How much the VertexBuffer can hold.
 		size_t  mVertexBufferSize;
 
 		/// mRenderOpPtr -- Pointer to the RenderOperation (Not owned by LayerContainer)
-		Ogre::RenderOperation*  mRenderOpPtr;
+		Ogre::v1::RenderOperation*  mRenderOpPtr;
 
 		/// Atlas assigned to this LayerContainer
 		TextureAtlas*  mAtlas;
@@ -888,8 +896,8 @@ namespace Gorilla
 		LayerContainer* mScreen;
 		Ogre::SceneManager*   mSceneMgr;
 		Ogre::RenderSystem*   mRenderSystem;
-		Ogre::HardwareVertexBufferSharedPtr   mVertexBuffer;
-		Ogre::RenderOperation mRenderOp;
+		Ogre::v1::HardwareVertexBufferSharedPtr   mVertexBuffer;
+		Ogre::v1::RenderOperation mRenderOp;
 		Ogre::MaterialPtr mMaterial;
 		Ogre::Real mLeft, mTop, mRight, mBottom;
 		buffer<Vertex>     mVertices;
@@ -897,7 +905,7 @@ namespace Gorilla
 		Ogre::Vector2      mUV[4];
 	};
 
-	class Screen : public LayerContainer, public Ogre::RenderQueueListener, public Ogre::GeneralAllocatedObject
+	class Screen : public LayerContainer, public Ogre::GeneralAllocatedObject
 	{
 	public:
 
@@ -905,6 +913,8 @@ namespace Gorilla
 		friend class Layer;
 
 		inline Ogre::RenderTarget* getViewport() const { return mViewport; }
+
+		void renderOnce();
 
 		/*! desc. getTexelOffsetX
 				Helper function to get horizontal texel offset.
@@ -978,24 +988,15 @@ namespace Gorilla
 			*/
 		~Screen();
 
-		// Internal -- Not used, but required by renderQueueListener
-		void renderQueueStarted(Ogre::uint8, const Ogre::String&, bool&) {}
-
-		// Internal -- Called by Ogre to render the screen.
-		void renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation, bool& repeatThisInvocation);
-
 		// Internal -- Prepares RenderSystem for rendering.
 		void _prepareRenderSystem();
-
-		// Internal -- Renders mVertexData to screen.
-		void renderOnce();
 
 		// Internal -- Used to transform vertices using units of pixels into screen coordinates.
 		void _transform(buffer<Vertex>& vertices, size_t begin, size_t end);
 
 		void _renderViewports();
 
-		Ogre::RenderOperation mRenderOp;
+		Ogre::v1::RenderOperation mRenderOp;
 		Ogre::SceneManager*   mSceneMgr;
 		Ogre::RenderSystem*   mRenderSystem;
 		Ogre::RenderTarget*       mViewport;
@@ -1013,7 +1014,7 @@ namespace Gorilla
 
 	};
 
-	class ScreenRenderable : public LayerContainer, public Ogre::SimpleRenderable
+	class ScreenRenderable : public LayerContainer, public Ogre::v1::SimpleRenderable
 	{
 
 	public:

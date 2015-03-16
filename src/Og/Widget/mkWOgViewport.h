@@ -10,14 +10,18 @@
 #include <Og/Ogre/mkOgViewport.h>
 #include <Ui/Widget/mkSheet.h>
 
+#ifdef GORILLA_V21
+#include <Og/Gorilla/Gorilla21.h>
+#else
 #include <Og/Gorilla/Gorilla.h>
+#endif
 
 namespace mk
 {
-	class MK_OG_EXPORT WOgViewport : public Sheet, public OgViewport
+	class MK_OG_EXPORT _I_ WOgViewport : public Sheet, public OgViewport, public Typed<WOgViewport>, public Styled<WOgViewport>
 	{
 	public:
-		WOgViewport(Form* form, Ogre::Camera* camera, MOC::CollisionTools* collisionTools);
+		WOgViewport(Form* form, Ogre::Camera* camera, MOC::CollisionTools* collisionTools = nullptr);
 		~WOgViewport();
 
 		void build();
@@ -37,6 +41,8 @@ namespace mk
 
 		virtual void leftPicked(Object* object, bool shift, float x, float y) = 0;
 		virtual void rightPicked(Object* object, bool shift, float x, float y) = 0;
+		
+		using Typed<WOgViewport>::cls;
 
 	protected:
 		OgreWindow* mOgreWindow;

@@ -10,15 +10,23 @@
 #include <Ui/Frame/mkFrame.h>
 #include <Og/Gorilla/mkGorillaInk.h>
 
+#include <Compositor/OgreCompositorManager2.h>
+
 #include <Object/Util/mkMake.h>
 
 #include <Og/Gorilla/RectPacking/GuillotineBinPack.h>
 #include <Og/Gorilla/RectPacking/SkylineBinPack.h>
 
-#include <Compositor/OgreCompositorManager2.h>
-
 #include <iostream>
 #include <fstream>
+
+#ifdef GORILLA_V21
+namespace Ogre
+{
+	typedef v1::HardwarePixelBufferSharedPtr HardwarePixelBufferSharedPtr;
+	typedef v1::HardwareBuffer HardwareBuffer;
+}
+#endif
 
 namespace mk
 {
@@ -255,9 +263,6 @@ namespace mk
 		, mAtlasWidth(1024)
 		, mAtlasHeight(1024)
 	{
-		Ogre::CompositorManager2* compositorManager = ogreWindow->ogreModule()->ogreRoot()->getCompositorManager2();
-		compositorManager->addWorkspace(mSceneManager, ogreWindow->context(), mCamera, "Black Workspace", true);
-
 		mAtlas = generateAtlas(mSilverback.get(), mAtlasWidth, mAtlasHeight, "uisprites", "imagefonts", "gorillafonts", "../data/interface/gorillafonts/", "../data/interface/gorilla/");
 
 		mScreenTarget = make_unique<GorillaTarget>(mSilverback->createScreen(mSceneManager, ogreWindow->context(), "uiatlas"));

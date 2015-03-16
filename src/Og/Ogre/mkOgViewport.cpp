@@ -6,7 +6,11 @@
 #include <Og/Ogre/mkOgViewport.h>
 
 /* MOC picking header */
+#ifdef GORILLA_V21
+#include <Og/Ogre/CollisionTools/CollisionTools21.h>
+#else
 #include <Og/Ogre/CollisionTools/CollisionTools.h>
+#endif
 
 #include <iostream>
 
@@ -18,7 +22,13 @@ namespace mk
 		, mWidth(0.f)
 		, mHeight(0.f)
 		, mCollisionTools(collisionTools)
-	{}
+	{
+		if(!mCollisionTools)
+		{
+			mUniqueCollisionTools = make_unique<MOC::CollisionTools>(camera->getParentSceneNode()->getCreator());
+			mCollisionTools = mUniqueCollisionTools.get();
+		}
+	}
 
 	OgViewport::~OgViewport()
 	{}
@@ -57,7 +67,7 @@ namespace mk
 		return nullptr;
 	}
 
-	Ogre::Vector3 OgViewport::pickLocation(float tx, float ty)
+	void OgViewport::pickLocation(float tx, float ty, float* location)
 	{
 		Ogre::Ray ray = mCamera->getCameraToViewportRay(tx, ty);
 		
@@ -65,9 +75,9 @@ namespace mk
 		Ogre::MovableObject* target;
 		
 		float f = 0.f;
-		if(mCollisionTools->raycast(ray, result, target, f, WORLDPAGE_OGRE_MASK))
-			return result;
-
-		return Ogre::Vector3(0, 0, 0);
+		mCollisionTools->raycast(ray, result, target, f, WORLDPAGE_OGRE_MASK);
+		
+		for(size_t i = 0; i < 3; ++i)
+			location[i] = result[i];
 	}
 }

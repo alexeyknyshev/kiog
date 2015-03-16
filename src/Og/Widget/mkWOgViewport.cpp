@@ -26,12 +26,16 @@
 #include <Compositor/OgreCompositorManager2.h>
 
 /* MOC picking header */
+#ifdef GORILLA_V21
+#include <Og/Ogre/CollisionTools/CollisionTools21.h>
+#else
 #include <Og/Ogre/CollisionTools/CollisionTools.h>
+#endif
 
 namespace mk
 {
 	WOgViewport::WOgViewport(Form* form, Ogre::Camera* camera, MOC::CollisionTools* collisionTools)
-		: Sheet("", form)
+		: Sheet(styleCls(), form)
 		, OgViewport(camera, collisionTools)
 		, mRenderTexture(nullptr)
 		, mBlank(true)
@@ -52,10 +56,10 @@ namespace mk
 	{
 		mBlank = false;
 
-		mMaterialName = mForm->fullIndex() + "ViewportRTT";
+		mMaterialName = mForm->concatIndex() + "ViewportRTT";
 
 		mMaterial = Ogre::MaterialManager::getSingleton().create(mMaterialName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		//mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 		mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState();
 
 		this->initTexture();
@@ -81,7 +85,7 @@ namespace mk
 		mRenderTexture = mTexture->getBuffer()->getRenderTarget();
 
 		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(mTexture);
-		
+
 		mWorkspace = mRoot->getCompositorManager2()->addWorkspace(mSceneManager, mRenderTexture, mCamera, "Basic Workspace", true);
 	}
 
@@ -128,8 +132,11 @@ namespace mk
 
 		Ogre::Ray ray = mCamera->getCameraToViewportRay(tx, ty);
 
-		from[0] = ray.getOrigin()[0]; from[1] = ray.getOrigin()[1]; from[2] = ray.getOrigin()[2];
-		from[0] = ray.getDirection()[0]; from[1] = ray.getDirection()[1]; from[2] = ray.getDirection()[2];
+		for(size_t i = 0; i < 3; ++i)
+		{
+			from[i] = ray.getOrigin()[i];
+			to[i] = ray.getDirection()[i];
+		}
 
 		//to *= mCamera->getFarClipDistance();
 		//to += from;

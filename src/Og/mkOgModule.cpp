@@ -20,6 +20,8 @@
 
 #include <Ui/Widget/mkWidget.h>
 
+#include <Og/Widget/mkWOgViewport.h>
+
 namespace mk
 {
 	OgWindow::OgWindow(OgModule* front, const string& name, int width, int height, bool fullScreen, User* user)
@@ -27,7 +29,6 @@ namespace mk
 		, mUiWindow(make_unique<UiWindow>(user))
 		, mOgreWindow(front->ogreModule()->createWindow(mUiWindow.get(), name, width, height, fullScreen))
 		, mGorillaWindow(make_unique<GorillaWindow>(mOgreWindow.get()))
-		//, mCursorBox(make_unique<Uibox>()) // mOgreWindow->width(), mOgreWindow->height()
 	{
 		mUiWindow->setup(mOgreWindow.get(), mGorillaWindow.get(), front->input());
 		front->input()->initInput(mUiWindow.get(), mOgreWindow->handle());
@@ -47,10 +48,8 @@ namespace mk
 
 	OgModule::OgModule(const string& pluginsPath, const string& resourcePath)
 		: mOgreModule(make_unique<OgreModule>(pluginsPath, resourcePath))
-		, mInput(make_unique<OISInput>())
-#ifdef KIOG_SOUND
 		, mSoundManager(make_unique<SoundManager>())
-#endif
+		, mInput(make_unique<OISInput>())
 	{}
 
 	OgModule::~OgModule()
@@ -63,10 +62,8 @@ namespace mk
 		mOgreModule->configPrompt();
 		mOgreModule->initEnd();
 
-#ifdef KIOG_SOUND
 		// Sound
 		mSoundManager->init();
-#endif
 	}
 
 	void OgModule::initAuto()
@@ -76,10 +73,8 @@ namespace mk
 		mOgreModule->configAuto();
 		mOgreModule->initEnd();
 
-#ifdef KIOG_SOUND
 		// Sound
 		mSoundManager->init();
-#endif
 	}
 
 	bool OgModule::nextFrame()
@@ -87,10 +82,8 @@ namespace mk
 		mOgreModule->nextFrame();
 		mInput->nextFrame();
 
-#ifdef KIOG_SOUND
 		if(mOgreModule->contextActive())
 			mSoundManager->threadUpdate();
-#endif
 
 		bool pursue = true;
 		for(auto& window : mWindows)
