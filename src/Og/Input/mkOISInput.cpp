@@ -88,23 +88,23 @@ namespace mk
 
 	bool OISInput::mouseMoved(const OIS::MouseEvent &arg)
 	{
-		mDispatcher->mouseMoved(float(arg.state.X.abs), float(arg.state.Y.abs), float(arg.state.X.rel), float(arg.state.Y.rel));
+		mDispatcher->dispatchMouseMoved(float(arg.state.X.abs), float(arg.state.Y.abs), float(arg.state.X.rel), float(arg.state.Y.rel));
 
 		if(arg.state.Z.rel != 0)
-			mDispatcher->mouseWheeled(float(arg.state.X.abs), float(arg.state.Y.abs), float(arg.state.Z.rel));
+			mDispatcher->dispatchMouseWheeled(float(arg.state.X.abs), float(arg.state.Y.abs), float(arg.state.Z.rel));
 
 		return true;
 	}
 
 	bool OISInput::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 	{
-		mDispatcher->mousePressed(float(arg.state.X.abs), float(arg.state.Y.abs), convertOISButton(id));
+		mDispatcher->dispatchMousePressed(float(arg.state.X.abs), float(arg.state.Y.abs), convertOISButton(id));
 		return true;
 	}
 
 	bool OISInput::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 	{
-		mDispatcher->mouseReleased(float(arg.state.X.abs), float(arg.state.Y.abs), convertOISButton(id));
+		mDispatcher->dispatchMouseReleased(float(arg.state.X.abs), float(arg.state.Y.abs), convertOISButton(id));
 		return true;
 	}
 
@@ -132,13 +132,13 @@ namespace mk
 		if(arg.key == OIS::KC_ESCAPE)
 			mShutdownRequested = true;
 
-		mDispatcher->keyPressed(static_cast<KeyCode>(arg.key), getChar(arg));
+		mDispatcher->dispatchKeyPressed(static_cast<KeyCode>(arg.key), getChar(arg));
 		return true;
 	}
 
 	bool OISInput::keyReleased(const OIS::KeyEvent &arg)
 	{
-		mDispatcher->keyReleased(static_cast<KeyCode>(arg.key), getChar(arg));
+		mDispatcher->dispatchKeyReleased(static_cast<KeyCode>(arg.key), getChar(arg));
 		return true;
 	}
 }

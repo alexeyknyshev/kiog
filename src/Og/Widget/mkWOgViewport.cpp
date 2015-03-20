@@ -56,10 +56,11 @@ namespace mk
 	{
 		mBlank = false;
 
-		mMaterialName = mForm->concatIndex() + "ViewportRTT";
+		//mMaterialName = mForm->concatIndex() + "ViewportRTT";
+		mMaterialName = this->name() + "ViewportRTT";
 
 		mMaterial = Ogre::MaterialManager::getSingleton().create(mMaterialName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		//mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+		mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 		mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState();
 
 		this->initTexture();
@@ -68,7 +69,8 @@ namespace mk
 
 		OgViewport::resize();
 
-		mController->take(this);
+		if(mController)
+			mController->take(this);
 	}
 
 	void WOgViewport::initTexture()
@@ -101,10 +103,12 @@ namespace mk
 
 	void WOgViewport::nextFrame(size_t tick, size_t delta)
 	{
-		if(mFrame->dirty())
-			resize();
+		bool dirty = mFrame->dirty() >= Frame::DIRTY_FRAME;
 
-		Widget::nextFrame(tick, delta);
+		Sheet::nextFrame(tick, delta);
+
+		if(dirty)
+			resize();
 	}
 
     void WOgViewport::resize()
@@ -149,11 +153,8 @@ namespace mk
 		x -= mFrame->dabsolute(DIM_X);
 		y -= mFrame->dabsolute(DIM_Y);
 
-		float tx = x / mWidth;
-		float ty = y / mHeight;
-
-		Object* object = this->pickObject(tx, ty, SELECTABLE_OGRE_MASK);
-		leftPicked(object, this->uiWindow()->shiftPressed(), tx, ty);
+		Object* object = this->pickObject(x, y, SELECTABLE_OGRE_MASK);
+		leftPicked(object, this->uiWindow()->shiftPressed(), x, y);
 		return true;
 	}
 
@@ -162,11 +163,8 @@ namespace mk
 		x -= mFrame->dabsolute(DIM_X);
 		y -= mFrame->dabsolute(DIM_Y);
 
-		float tx = x / mWidth;
-		float ty = y / mHeight;
-
-		Object* object = this->pickObject(tx, ty, SELECTABLE_OGRE_MASK | WORLDPAGE_OGRE_MASK);
-		rightPicked(object, this->uiWindow()->shiftPressed(), tx, ty);
+		Object* object = this->pickObject(x, y, SELECTABLE_OGRE_MASK | WORLDPAGE_OGRE_MASK);
+		rightPicked(object, this->uiWindow()->shiftPressed(), x, y);
 		return true;
 	}
 }

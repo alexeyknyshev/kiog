@@ -1202,6 +1202,7 @@ namespace Gorilla
 		, mRight(left + width)
 		, mBottom(top + height)
 	{
+		std::cerr << "Create Gorilla Viewport of size " << width << " , " << height << std::endl;
 		this->_setup();
 	}
 
@@ -1212,7 +1213,7 @@ namespace Gorilla
 
 	void Viewport::resize(float left, float top, float width, float height)
 	{
-		//std::cerr << "Resize Gorilla Viewport from " << mRight - mLeft << " , " << mBottom - mTop << " to " << width << " , " << height << std::endl;
+		std::cerr << "Resize Gorilla Viewport from " << mRight - mLeft << " , " << mBottom - mTop << " to " << width << " , " << height << std::endl;
 		mLeft = left;
 		mTop = top;
 		mRight = left + width;

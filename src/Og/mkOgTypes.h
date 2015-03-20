@@ -11,6 +11,9 @@
 #include <Og/Ogre/mkOgViewport.h>
 #include <Og/Ogre/mkOgreModule.h>
 
+#include <Og/Space/mkSpaceSheet.h>
+#include <Og/Space/mkSpaceViewport.h>
+
 #include <Og/Widget/mkWOgViewport.h>
 
 #endif // MK_OGTYPES_H_INCLUDED

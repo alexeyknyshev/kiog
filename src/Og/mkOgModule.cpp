@@ -22,6 +22,9 @@
 
 #include <Og/Widget/mkWOgViewport.h>
 
+#define CAP_FRAMERATE
+#include <thread>
+
 namespace mk
 {
 	OgWindow::OgWindow(OgModule* front, const string& name, int width, int height, bool fullScreen, User* user)
@@ -88,6 +91,14 @@ namespace mk
 		bool pursue = true;
 		for(auto& window : mWindows)
 			pursue &= window->nextFrame();
+
+#ifdef CAP_FRAMERATE
+		static Clock clock;
+		double delta = 16.66666667 - (clock.step() / 1000.0);
+
+		if(delta > 0.f)
+			std::this_thread::sleep_for(std::chrono::milliseconds(int(delta)));
+#endif
 
 		return pursue;
 	}

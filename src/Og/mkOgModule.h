@@ -12,7 +12,7 @@
 
 namespace mk
 {
-	MK_OG_EXPORT Window* createOgTestWindow(Form* parent);
+	MK_OG_EXPORT void createOgTestUi(Form* parent);
 
 	class MK_OG_EXPORT OgWindow : public Object, public Typed<OgWindow>
 	{

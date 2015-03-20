@@ -46,8 +46,11 @@ namespace mk
 		}
     }
 
-	Object* OgViewport::pickObject(float tx, float ty, uint32_t queryMask)
+	Object* OgViewport::pickObject(float x, float y, uint32_t queryMask)
 	{
+		float tx = x / mWidth;
+		float ty = y / mHeight;
+
 		Ogre::Ray ray = mCamera->getCameraToViewportRay(tx, ty);
 		
 		Ogre::Vector3 result;
@@ -67,8 +70,11 @@ namespace mk
 		return nullptr;
 	}
 
-	void OgViewport::pickLocation(float tx, float ty, float* location)
+	void OgViewport::pickLocation(float x, float y, float* location)
 	{
+		float tx = x / mWidth;
+		float ty = y / mHeight;
+
 		Ogre::Ray ray = mCamera->getCameraToViewportRay(tx, ty);
 		
 		Ogre::Vector3 result;
