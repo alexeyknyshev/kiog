@@ -59,9 +59,16 @@ namespace mk
 		//mMaterialName = mForm->concatIndex() + "ViewportRTT";
 		mMaterialName = this->name() + "ViewportRTT";
 
+#ifndef GORILLA_V21
 		mMaterial = Ogre::MaterialManager::getSingleton().create(mMaterialName, Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 		mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState();
+		mMaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+#else
+		mMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D21")->clone(mMaterialName);
+		mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState();
+		//texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		//texUnit->setTextureFiltering(Ogre::FO_NONE, Ogre::FO_NONE, Ogre::FO_NONE);
+#endif
 
 		this->initTexture();
 

@@ -39,7 +39,11 @@ namespace mk
 	}
 
 	OgWindow::~OgWindow()
-	{}
+	{
+		mUiWindow.reset();
+		mGorillaWindow.reset();
+		mOgreWindow.reset();
+	}
 
 
 	bool OgWindow::nextFrame()
@@ -51,8 +55,10 @@ namespace mk
 
 	OgModule::OgModule(const string& pluginsPath, const string& resourcePath)
 		: mOgreModule(make_unique<OgreModule>(pluginsPath, resourcePath))
-		, mSoundManager(make_unique<SoundManager>())
 		, mInput(make_unique<OISInput>())
+#ifdef OG_SOUND
+		, mSoundManager(make_unique<SoundManager>())
+#endif
 	{}
 
 	OgModule::~OgModule()
@@ -66,7 +72,9 @@ namespace mk
 		mOgreModule->initEnd();
 
 		// Sound
+#ifdef OG_SOUND
 		mSoundManager->init();
+#endif
 	}
 
 	void OgModule::initAuto()
@@ -77,7 +85,9 @@ namespace mk
 		mOgreModule->initEnd();
 
 		// Sound
+#ifdef OG_SOUND
 		mSoundManager->init();
+#endif
 	}
 
 	bool OgModule::nextFrame()
@@ -85,8 +95,10 @@ namespace mk
 		mOgreModule->nextFrame();
 		mInput->nextFrame();
 
+#ifdef OG_SOUND
 		if(mOgreModule->contextActive())
 			mSoundManager->threadUpdate();
+#endif
 
 		bool pursue = true;
 		for(auto& window : mWindows)

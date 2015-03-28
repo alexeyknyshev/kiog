@@ -34,6 +34,10 @@ namespace mk
 	public:
 		GorillaAtlas(Gorilla::Silverback* silverback, string name, size_t width, size_t height, string path, string spriteGroup);
 
+		Gorilla::TextureAtlas* atlas() { return mAtlas; }
+		size_t width() { return mWidth; }
+		size_t height() { return mHeight; }
+
 		void createAtlas();
 		void generateAtlas();
 		void saveAtlas(string gorillafontgroup, string gorillafontpath);
@@ -43,6 +47,7 @@ namespace mk
 		void blitImage(Ogre::TexturePtr texture, ImageRect& image);
 
 		void appendSprite(string image);
+		void defineSprite(string image, float left, float top, float width, float height);
 
 		std::vector<ImageRect>& fonts() { return mFonts; }
 		std::vector<ImageRect>& sprites() { return mSprites; }
@@ -101,6 +106,7 @@ namespace mk
 	{
 	public:
 		GorillaSpaceTarget(Gorilla::ScreenRenderable* spaceScreen);
+		~GorillaSpaceTarget();
 
 		Gorilla::ScreenRenderable* spaceScreen() { return mSpaceScreen; }
 		Gorilla::Layer* layer() { return mLayer->layer(); }
@@ -125,6 +131,7 @@ namespace mk
 
 		InkTarget* screenTarget();
 		InkTarget* spaceTarget(Ogre::SceneManager* sceneMgr, int width, int height);
+		void releaseTarget(InkTarget* target);
 
 		const std::vector<unique_ptr<GorillaSpaceTarget>>& spaceTargets() { return mSpaceTargets; }
 

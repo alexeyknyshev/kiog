@@ -17,6 +17,11 @@ namespace Ogre
 	class Viewport;
 }
 
+namespace Collision
+{
+	class CollisionTools;
+}
+
 namespace MOC
 {
 	class CollisionTools;

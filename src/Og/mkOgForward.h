@@ -23,6 +23,8 @@ namespace mk
 	class GorillaTarget;
 	class GorillaSpaceTarget;
 	class GorillaLayer;
+	class GorillaInk;
+	class GorillaImageSkin;
 
 	class ManualShape;
 

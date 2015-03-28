@@ -19,31 +19,31 @@
 
 namespace mk
 {
-	Ogre::ManualObject* createCubeMesh(Ogre::SceneManager* sceneManager, Ogre::String matName = "debug_draw")
+	Ogre::ManualObject* createCubeMesh(Ogre::SceneManager* sceneManager, Ogre::String matName = "Gorilla2D21")
 	{
 		Ogre::ManualObject* cube = sceneManager->createManualObject();
 		cube->begin(matName);
 
-		cube->position(0.5, -0.5, 1.0); cube->normal(0.408248, -0.816497, 0.408248); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, -0.5, 0.0); cube->normal(-0.408248, -0.816497, -0.408248); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, -0.5, 0.0); cube->normal(0.666667, -0.333333, -0.666667); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, -0.5, 1.0); cube->normal(-0.666667, -0.333333, 0.666667); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, 0.5, 1.0); cube->normal(0.666667, 0.333333, 0.666667); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, -0.5, 1.0); cube->normal(-0.666667, -0.333333, 0.666667); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, -0.5, 1.0); cube->normal(0.408248, -0.816497, 0.408248); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, 0.5, 1.0); cube->normal(-0.408248, 0.816497, 0.408248); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, 0.5, 0.0); cube->normal(-0.666667, 0.333333, -0.666667); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, -0.5, 0.0); cube->normal(-0.408248, -0.816497, -0.408248); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, -0.5, 1.0); cube->normal(-0.666667, -0.333333, 0.666667); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, -0.5, 0.0); cube->normal(0.666667, -0.333333, -0.666667); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, 0.5, 0.0); cube->normal(0.408248, 0.816497, -0.408248); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, -0.5, 1.0); cube->normal(0.408248, -0.816497, 0.408248); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, -0.5, 0.0); cube->normal(0.666667, -0.333333, -0.666667); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, -0.5, 0.0); cube->normal(-0.408248, -0.816497, -0.408248); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, 0.5, 1.0); cube->normal(-0.408248, 0.816497, 0.408248); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, 0.5, 0.0); cube->normal(0.408248, 0.816497, -0.408248); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(-0.5, 0.5, 0.0); cube->normal(-0.666667, 0.333333, -0.666667); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
-		cube->position(0.5, 0.5, 1.0); cube->normal(0.666667, 0.333333, 0.666667); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, -0.5f, 1.0f); cube->normal(0.408248f, -0.816497f, 0.408248f); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, -0.5f, 0.0f); cube->normal(-0.408248f, -0.816497f, -0.408248f); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, -0.5f, 0.0f); cube->normal(0.666667f, -0.333333f, -0.666667f); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, -0.5f, 1.0f); cube->normal(-0.666667f, -0.333333f, 0.666667f); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, 0.5f, 1.0f); cube->normal(0.666667f, 0.333333f, 0.666667f); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, -0.5f, 1.0f); cube->normal(-0.666667f, -0.333333f, 0.666667f); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, -0.5f, 1.0f); cube->normal(0.408248f, -0.816497f, 0.408248f); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, 0.5f, 1.0f); cube->normal(-0.408248f, 0.816497f, 0.408248f); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, 0.5f, 0.0f); cube->normal(-0.666667f, 0.333333f, -0.666667f); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, -0.5f, 0.0f); cube->normal(-0.408248f, -0.816497f, -0.408248f); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, -0.5f, 1.0f); cube->normal(-0.666667f, -0.333333f, 0.666667f); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, -0.5f, 0.0f); cube->normal(0.666667f, -0.333333f, -0.666667f); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, 0.5f, 0.0f); cube->normal(0.408248f, 0.816497f, -0.408248f); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, -0.5f, 1.0f); cube->normal(0.408248f, -0.816497f, 0.408248f); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, -0.5f, 0.0f); cube->normal(0.666667f, -0.333333f, -0.666667f); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, -0.5f, 0.0f); cube->normal(-0.408248f, -0.816497f, -0.408248f); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, 0.5f, 1.0f); cube->normal(-0.408248f, 0.816497f, 0.408248f); cube->textureCoord(1, 0); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, 0.5f, 0.0f); cube->normal(0.408248f, 0.816497f, -0.408248f); cube->textureCoord(0, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(-0.5f, 0.5f, 0.0f); cube->normal(-0.666667f, 0.333333f, -0.666667f); cube->textureCoord(1, 1); cube->colour(Ogre::ColourValue::White);
+		cube->position(0.5f, 0.5f, 1.0f); cube->normal(0.666667f, 0.333333f, 0.666667f); cube->textureCoord(0, 0); cube->colour(Ogre::ColourValue::White);
 
 		cube->triangle(0, 1, 2);      cube->triangle(3, 1, 0);
 		cube->triangle(4, 5, 6);      cube->triangle(4, 7, 5);
@@ -93,7 +93,8 @@ namespace mk
 		SpaceForm* sheet3D = viewport->makeappend<SpaceForm>(viewport->widget()->as<SpaceViewport>());
 		sheet3D->widget()->frame()->setSize(480.f, 350.f);
 
-		Window* window = createUiTestWindow(sheet3D);
+		//Window* window = createUiTestWindow(sheet3D);
+		createUiTestMyGuiImageSkin(sheet3D);
 	}
 
 	void pickSample(Form* root, const string& name)
@@ -106,14 +107,26 @@ namespace mk
 			createOgTest3DSheet(root);
 		else if(name == "Dockspace")
 			createUiTestDockspace(root);
-		else if(name == "Controls")
-			createUiTestControls(root);
+		else if(name == "Window")
+			createUiTestWindow(root);
 		else if(name == "Tabs")
 			createUiTestTabs(root);
 		else if(name == "Table")
 			createUiTestTable(root);
-		else if(name == "Window")
-			createUiTestWindow(root);
+		else if(name == "Tree")
+			createUiTestTree(root);
+		else if(name == "Controls")
+			createUiTestControls(root);
+		else if(name == "Skinned Window (Cegui)")
+			createUiTestCeguiImageSkin(root);
+		else if(name == "Skinned Window (MyGui)")
+			createUiTestMyGuiImageSkin(root);
+		else if(name == "File Browser")
+			createUiTestFileBrowser(root);
+		else if(name == "File Tree")
+			createUiTestFileTree(root);
+		else if(name == "Progress Dialog")
+			createUiTestProgressDialog(root);
 	}
 
 	void createOgTestUi(Form* root)
@@ -127,6 +140,11 @@ namespace mk
 		Form* demoheader = root->makeappend<Header>();
 		Form* demobody = root->makeappend<PartitionX>();
 		demoheader->makeappend<Label>("Pick a demo sample : ");
-		demoheader->makeappend<Dropdown>(std::bind(&pickSample, demobody, std::placeholders::_1), StringVector({ "Dockspace", "Window", "Tabs", "Controls", "Viewport", "3D Sheet" }));
+#ifndef GORILLA_V21
+		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog", "Viewport", "3D Sheet" });
+#else
+		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog" });
+#endif
+		demoheader->makeappend<Dropdown>(std::bind(&pickSample, demobody, std::placeholders::_1), samples);
 	}
 }

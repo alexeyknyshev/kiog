@@ -715,6 +715,7 @@ namespace Gorilla
 		void  _create2DMaterial();
 		void  _create3DMaterial();
 		void  _calculateCoordinates();
+		void  _calculateSpriteCoordinates(Sprite* sprite);
 
 		Ogre::TexturePtr                  mTexture;
 		Ogre::MaterialPtr                 m2DMaterial, m3DMaterial;
@@ -1145,6 +1146,8 @@ namespace Gorilla
 			return mAlphaModifier;
 		}
 
+		Rectangle*         insertRectangle(size_t index, Ogre::Real left, Ogre::Real top, Ogre::Real width = 100, Ogre::Real height = 100);
+
 		/*! function. createRectangle
 			desc.
 			Creates a rectangle.
@@ -1438,6 +1441,8 @@ namespace Gorilla
 		friend class Layer;
 
 	public:
+
+		size_t index() { return mIndex; }
 
 		/*! function. intersects
 			desc.
@@ -1969,13 +1974,14 @@ namespace Gorilla
 
 	protected:
 
-		Rectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height, Layer* parent);
+		Rectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height, Layer* parent, size_t index);
 
 		~Rectangle() {}
 
 	protected:
 
 		Layer*             mLayer;
+		size_t             mIndex;
 		Ogre::Real         mLeft, mTop, mRight, mBottom, mBorderWidth;
 		Ogre::ColourValue  mBackgroundColour[4];
 		Ogre::ColourValue  mBorderColour[4];

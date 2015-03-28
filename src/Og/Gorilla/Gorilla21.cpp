@@ -478,17 +478,19 @@ namespace Gorilla
 		sprite->spriteHeight = height;
 
 		mSprites[name] = sprite;
+
+		_calculateSpriteCoordinates(sprite);
 	}
 
 	void  TextureAtlas::_create2DMaterial()
 	{
 		std::string matName = "Gorilla2D." + mTexture->getName();
-		m2DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D")->clone(matName);
+		m2DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D21")->clone(matName);
 		m2DPass = m2DMaterial->getTechnique(0)->getPass(0);
 
 		Ogre::TextureUnitState* texUnit = m2DPass->createTextureUnitState();
-		texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
-		texUnit->setTextureFiltering(Ogre::FO_NONE, Ogre::FO_NONE, Ogre::FO_NONE);
+		//texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		//texUnit->setTextureFiltering(Ogre::FO_NONE, Ogre::FO_NONE, Ogre::FO_NONE);
 		//texUnit->setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_NONE);
 		m2DPass->setVertexColourTracking(Ogre::TVC_DIFFUSE);
 
@@ -498,14 +500,34 @@ namespace Gorilla
 	void  TextureAtlas::_create3DMaterial()
 	{
 		std::string matName = "Gorilla3D." + mTexture->getName();
-		m3DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla3D")->clone(matName);
+		m3DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla3D21")->clone(matName);
 		m3DPass = m3DMaterial->getTechnique(0)->getPass(0);
 
 		Ogre::TextureUnitState* texUnit = m3DPass->createTextureUnitState();
-		texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
-		texUnit->setTextureFiltering(Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC);
+		//texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		//texUnit->setTextureFiltering(Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC);
 		
 		m3DPass->getTextureUnitState(0)->setTexture(mTexture);
+	}
+
+	void  TextureAtlas::_calculateSpriteCoordinates(Sprite* sprite)
+	{
+		sprite->uvRight = sprite->uvLeft + sprite->spriteWidth;
+		sprite->uvBottom = sprite->uvTop + sprite->spriteHeight;
+
+		sprite->uvLeft *= mInverseTextureSize.x;
+		sprite->uvTop *= mInverseTextureSize.y;
+		sprite->uvRight *= mInverseTextureSize.x;
+		sprite->uvBottom *= mInverseTextureSize.y;
+
+		sprite->texCoords[TopLeft].x = sprite->uvLeft;
+		sprite->texCoords[TopLeft].y = sprite->uvTop;
+		sprite->texCoords[TopRight].x = sprite->uvRight;
+		sprite->texCoords[TopRight].y = sprite->uvTop;
+		sprite->texCoords[BottomRight].x = sprite->uvRight;
+		sprite->texCoords[BottomRight].y = sprite->uvBottom;
+		sprite->texCoords[BottomLeft].x = sprite->uvLeft;
+		sprite->texCoords[BottomLeft].y = sprite->uvBottom;
 	}
 
 	void  TextureAtlas::_calculateCoordinates()
@@ -548,23 +570,7 @@ namespace Gorilla
 
 		for(std::map<Ogre::String, Sprite*>::iterator it = mSprites.begin(); it != mSprites.end(); it++)
 		{
-			(*it).second->uvRight = (*it).second->uvLeft + (*it).second->spriteWidth;
-			(*it).second->uvBottom = (*it).second->uvTop + (*it).second->spriteHeight;
-
-			(*it).second->uvLeft *= mInverseTextureSize.x;
-			(*it).second->uvTop *= mInverseTextureSize.y;
-			(*it).second->uvRight *= mInverseTextureSize.x;
-			(*it).second->uvBottom *= mInverseTextureSize.y;
-
-			(*it).second->texCoords[TopLeft].x = (*it).second->uvLeft;
-			(*it).second->texCoords[TopLeft].y = (*it).second->uvTop;
-			(*it).second->texCoords[TopRight].x = (*it).second->uvRight;
-			(*it).second->texCoords[TopRight].y = (*it).second->uvTop;
-			(*it).second->texCoords[BottomRight].x = (*it).second->uvRight;
-			(*it).second->texCoords[BottomRight].y = (*it).second->uvBottom;
-			(*it).second->texCoords[BottomLeft].x = (*it).second->uvLeft;
-			(*it).second->texCoords[BottomLeft].y = (*it).second->uvBottom;
-
+			_calculateSpriteCoordinates((*it).second);
 		}
 
 	}
@@ -1155,19 +1161,6 @@ namespace Gorilla
 		if(mRenderOp.vertexData->vertexCount)
 		{
 			_prepareRenderSystem();
-
-			/*Ogre::HlmsBlendblock blendblock;
-
-			Ogre::Pass::_getBlendFlags(Ogre::SBT_TRANSPARENT_ALPHA,
-				blendblock.mSourceBlendFactor,
-				blendblock.mDestBlendFactor);
-
-			Ogre::Pass::_getBlendFlags(Ogre::SBT_TRANSPARENT_ALPHA,
-				blendblock.mSourceBlendFactorAlpha,
-				blendblock.mDestBlendFactorAlpha);
-
-			mRenderSystem->_setHlmsBlendblock(&blendblock);*/
-			//mRenderOp.
 			mRenderSystem->_render(mRenderOp);
 		}
 	}
@@ -1423,21 +1416,36 @@ namespace Gorilla
 		mParent->_requestIndexRedraw(mIndex);
 	}
 
+	Rectangle* Layer::insertRectangle(size_t index, Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height)
+	{
+		Rectangle* rectangle = OGRE_NEW Rectangle(left, top, width, height, this, index);
+		mRectangles.insert(mRectangles.begin() + index, rectangle);
+		for(auto it = mRectangles.begin() + index; it != mRectangles.end(); ++it)
+			(*it)->mIndex = index++;
+		return rectangle;
+	}
+
 	Rectangle* Layer::createRectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height)
 	{
-		Rectangle* rectangle = OGRE_NEW Rectangle(left, top, width, height, this);
+		Rectangle* rectangle = OGRE_NEW Rectangle(left, top, width, height, this, mRectangles.size());
 		mRectangles.push_back(rectangle);
 		return rectangle;
 	}
 
-	void Layer::destroyRectangle(Rectangle* rectangle)
+	void Layer::destroyRectangle(size_t index)
 	{
-		if(rectangle == 0)
-			return;
-
-		mRectangles.erase(std::find(mRectangles.begin(), mRectangles.end(), rectangle));
+		Rectangle* rectangle = mRectangles[index];
+		mRectangles.erase(mRectangles.begin() + index);
+		//mRectangles.erase(std::find(mRectangles.begin(), mRectangles.end(), rectangle));
+		for(auto it = mRectangles.begin() + index; it != mRectangles.end(); ++it)
+			(*it)->mIndex = index++;
 		OGRE_DELETE rectangle;
 		_markDirty();
+	}
+
+	void Layer::destroyRectangle(Rectangle* rectangle)
+	{
+		this->destroyRectangle(rectangle->index());
 	}
 
 	void Layer::destroyAllRectangles()
@@ -1689,8 +1697,9 @@ namespace Gorilla
 	}
 
 
-	Rectangle::Rectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height, Layer* layer) : mLayer(layer)
+	Rectangle::Rectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height, Layer* layer, size_t index) : mLayer(layer)
 	{
+		mIndex = index;
 		mDirty = true;
 		mLeft = left;
 		mTop = top;

@@ -20,17 +20,23 @@ namespace mk
 	class GorillaImage
 	{
 	public:
-		GorillaImage(Frame* frame, GorillaLayer* layer);
+		GorillaImage(GorillaInk* inkbox);
+		~GorillaImage();
+
+		void prepare();
+
+		void show();
+		void hide();
 
 		void updateFrame();
+		void updateImage();
 
-		Gorilla::Rectangle* createImage(GorillaLayer* layer, const string& image);
+		Gorilla::Rectangle* createImage(const string& image);
 
 	protected:
+		GorillaInk* mInkbox;
 		Frame* mFrame;
-		Gorilla::Rectangle* mTop; Gorilla::Rectangle* mRight; Gorilla::Rectangle* mBottom; Gorilla::Rectangle* mLeft;
-		Gorilla::Rectangle* mTopLeft; Gorilla::Rectangle* mTopRight; Gorilla::Rectangle* mBottomRight; Gorilla::Rectangle* mBottomLeft;
-		Gorilla::Rectangle* mFill;
+		std::vector<Gorilla::Rectangle*> mRects;
 	};
 
 	class GorillaInk : public Inkbox
@@ -39,6 +45,8 @@ namespace mk
 		GorillaInk(Frame* frame, GorillaLayer* layer);
 		~GorillaInk();
     
+		GorillaLayer* layer() { return mLayer; }
+
 		void updateContent();
 		void updateFrame();
 		void updateStyle();
@@ -53,11 +61,15 @@ namespace mk
 		void updateImage();
 		void updateCaption();
 
+		Gorilla::Rectangle* lastRect();
+		Gorilla::Rectangle* createRectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height);
+
 	protected:
 		GorillaLayer* mLayer;
 		Gorilla::Rectangle* mRect;
 		Gorilla::Rectangle* mImage; // Optional
 		Gorilla::Caption* mCaption; // Optional
+		Gorilla::Rectangle* mLastRect; // Pointer to last created rect
 		unique_ptr<GorillaImage> mImageSkin;
 	};
 

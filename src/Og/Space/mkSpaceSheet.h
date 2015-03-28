@@ -7,6 +7,13 @@
 #include <Ui/Widget/mkRootSheet.h>
 #include <Og/Gorilla/mkGorillaWindow.h>
 
+#ifdef GORILLA_V21
+namespace Ogre
+{
+	typedef v1::ManualObject ManualObject;
+}
+#endif
+
 namespace mk
 {
 	class MK_OG_EXPORT SpaceSheet : public RootSheet, public Typed<SpaceSheet>, public Styled<SpaceSheet>
@@ -30,13 +37,7 @@ namespace mk
 
 		InputReceiver* propagateMouse(float x, float y);
 
-		Widget* pinpoint(float x, float y);
-
-		bool mouseMoved(float xPos, float yPos, float xDif, float yDif);
-		bool mouseWheel(float xPos, float yPos, float amount);
-
-		bool mousePressed(float xPos, float yPos, MouseButton button);
-		bool mouseReleased(float xPos, float yPos, MouseButton button);
+		Widget* pinpoint(float x, float y, bool modal = false);
 
 		using Typed<SpaceSheet>::cls;
 		using Styled<SpaceSheet>::styleCls;

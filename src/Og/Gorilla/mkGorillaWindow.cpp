@@ -82,7 +82,7 @@ namespace mk
 			mHeight,
 			0,
 			Ogre::PF_A8R8G8B8,
-			Ogre::TU_DEFAULT
+			Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE
 			);
 
 		// Write white pixel (4 * 4) at width - 4 and height - 4
@@ -183,7 +183,7 @@ namespace mk
 	{
 		Ogre::Image::Box destBox(image.x, image.y, 0, image.x + image.width, image.y + image.height, 1);
 
-		const Ogre::PixelBox& destPixelBox = texture->getBuffer()->lock(destBox, Ogre::HardwareBuffer::HBL_NORMAL);
+		const Ogre::PixelBox& destPixelBox = texture->getBuffer()->lock(destBox, Ogre::HardwareBuffer::HBL_WRITE_ONLY);
 
 		Ogre::HardwarePixelBufferSharedPtr sourceBuffer = Ogre::TextureManager::getSingletonPtr()->getByName(image.image)->getBuffer();
 		sourceBuffer->blitToMemory(destPixelBox);
@@ -201,6 +201,11 @@ namespace mk
 
 		this->blitImage(mAtlas->getTexture(), sprite);
 		mAtlas->addSprite(name, sprite.x, sprite.y, sprite.width, sprite.height);
+	}
+
+	void GorillaAtlas::defineSprite(string name, float left, float top, float width, float height)
+	{
+		mAtlas->addSprite(name, left, top, width, height);
 	}
 
 	GorillaLayer::GorillaLayer(GorillaTarget* target, Gorilla::Layer* layer)
@@ -247,9 +252,10 @@ namespace mk
 	GorillaSpaceTarget::GorillaSpaceTarget(Gorilla::ScreenRenderable* spaceScreen)
 		: GorillaTarget(spaceScreen)
 		, mSpaceScreen(spaceScreen)
-	{
-		// return unew<GorillaLayer>(mSpaceScreen->createLayer());
-	}
+	{}
+	
+	GorillaSpaceTarget::~GorillaSpaceTarget()
+	{}
 
 	void GorillaSpaceTarget::redraw()
 	{
@@ -283,5 +289,15 @@ namespace mk
 	{
 		mSpaceTargets.emplace_back(make_unique<GorillaSpaceTarget>(mSilverback->createScreenRenderable(sceneMgr, Ogre::Vector2(width, height), "uiatlas")));
 		return mSpaceTargets.back().get();
+	}
+
+	void GorillaWindow::releaseTarget(InkTarget* target)
+	{
+		size_t pos = 0;
+		while(mSpaceTargets[pos].get() != target)
+			++pos;
+
+		mSilverback->destroyScreenRenderable(mSpaceTargets[pos]->spaceScreen());
+		mSpaceTargets.erase(mSpaceTargets.begin() + pos);
 	}
 }

@@ -74,7 +74,11 @@ namespace mk
 	}
 
 	SpaceSheet::~SpaceSheet()
-	{}
+	{
+		Sheet::clear(); // @kludge : destroy the contents now because layer() is a virtual function and is needed in the destructor
+		mFrame.reset();
+		this->uiWindow()->inkWindow()->as<GorillaWindow>()->releaseTarget(mTarget);
+	}
 
 	void SpaceSheet::build()
 	{
@@ -101,22 +105,10 @@ namespace mk
 		mTarget->spaceScreen()->maxSize().y = mFrame->dsize(DIM_Y);
 
 		mDummyRect->beginUpdate(0);
-		std::cerr << "SpaceSheet :: updateSize " << mFrame->dsize(DIM_X) << " , " << mFrame->dsize(DIM_Y) << std::endl;
 		float x = mFrame->dsize(DIM_X) * mTarget->spaceScreen()->ratio();
 		float y = mFrame->dsize(DIM_Y) * mTarget->spaceScreen()->ratio();
 		quadXY(mDummyRect, -x/2.f, -y/2.f, x, y, 0U);
 		mDummyRect->end();
-	}
-
-	InputReceiver* SpaceSheet::propagateMouse(float x, float y)
-	{
-		return mParent->parent(); // we skip the SpaceViewport
-	}
-
-	Widget* SpaceSheet::pinpoint(float x, float y)
-	{
-		this->transformCoordinates(x, y);
-		return Widget::pinpoint(x, y);
 	}
 
 	void SpaceSheet::transformCoordinates(float& x, float &y)
@@ -141,30 +133,16 @@ namespace mk
 		y = -rel.y / mTarget->spaceScreen()->ratio() + mFrame->dsize(DIM_Y) / 2.f;
 	}
 
-	bool SpaceSheet::mouseMoved(float xPos, float yPos, float xDif, float yDif)
+	InputReceiver* SpaceSheet::propagateMouse(float x, float y)
 	{
-		this->transformCoordinates(xPos, yPos);
-		xDif = xPos - mLastX;
-		yDif = yPos - mLastY;
-		return RootSheet::mouseMoved(xPos, yPos, xDif, yDif);
+		return mParent->parent(); // we skip the SpaceViewport
 	}
 
-	bool SpaceSheet::mouseWheel(float xPos, float yPos, float amount)
+	Widget* SpaceSheet::pinpoint(float x, float y, bool modal)
 	{
-		this->transformCoordinates(xPos, yPos);
-		return RootSheet::mouseWheel(xPos, yPos, amount);
-	}
-
-	bool SpaceSheet::mousePressed(float xPos, float yPos, MouseButton button)
-	{
-		this->transformCoordinates(xPos, yPos);
-		return RootSheet::mousePressed(xPos, yPos, button);
-	}
-
-	bool SpaceSheet::mouseReleased(float xPos, float yPos, MouseButton button)
-	{
-		this->transformCoordinates(xPos, yPos);
-		return RootSheet::mouseReleased(xPos, yPos, button);
+		if(modal)
+			return this;
+		return Widget::pinpoint(x, y, modal);
 	}
 
 	SpaceForm::SpaceForm(SpaceViewport* viewport)
