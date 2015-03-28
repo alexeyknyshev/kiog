@@ -46,6 +46,7 @@ namespace mk
 
 		InputDispatcher* mDispatcher;
 
+		bool mPressed;
         bool mShutdownRequested;
     };
 
