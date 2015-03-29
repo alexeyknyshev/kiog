@@ -16,13 +16,14 @@ install:
 
 before_script:
   - hg clone https://bitbucket.org/cabalistic/ogredeps
+  - hg clone http://bitbucket.org/sinbad/ogre/ -u v2-1
   - cd ogredeps
   - mkdir build
   - cd build
   - cmake ..
   - make
   - sudo make install
-  - hg clone http://bitbucket.org/sinbad/ogre/ -u v2-1
+  - cp -avr ./ogredeps ../../ogre
   - cd ogre
   - mkdir build
   - cd build
