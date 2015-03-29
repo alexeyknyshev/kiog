@@ -18,24 +18,30 @@ install:
 
 before_script:
   - hg clone https://bitbucket.org/cabalistic/ogredeps
-  - hg clone http://bitbucket.org/sinbad/ogre/ -u v2-1
+  - hg clone http://bitbucket.org/sinbad/ogre -u v2-1
+  - git clone https://github.com/novembermonk/kiui
   - mkdir ogredeps/build
   - mkdir ogre/build
+  - mkdir kiui/build
   - mkdir build
   - cd ogredeps/build
-  - cmake ..
+  - cmake .. -DCMAKE_BUILD_TYPE=Release
   - make
   - sudo make install
   - cp -avr ./ogredeps ../../ogre
   - mv ../../ogre/ogredeps ../../ogre/Dependencies
   - cd ../../ogre/build
+  - cmake .. -DCMAKE_BUILD_TYPE=Release
+  - make
+  - sudo make install
+  - cd ../../kiui/build
   - cmake ..
   - make
   - sudo make install
   - cd ../../build
   
 script:
-  - cmake ..
+  - cmake .. -DCMAKE_BUILD_TYPE=Release
   - sudo cmake --build . --target install
 
 os:
