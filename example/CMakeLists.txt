@@ -9,4 +9,4 @@ include_directories(${KIOG_SOURCE_DIR}/src)
 target_link_libraries(example ${KIUI_LIBRARIES})
 target_link_libraries(example kiog)
 
-install(TARGETS kiog RUNTIME DESTINATION "example/")
+install(TARGETS example RUNTIME DESTINATION "example/")
