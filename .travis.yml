@@ -28,13 +28,13 @@ before_script:
   - mkdir build
   - cd ogredeps/build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fPIC
-  - make VERBOSE=1
+  - make
   - sudo make install
   - cp -avr ./ogredeps ../../ogre
   - mv ../../ogre/ogredeps ../../ogre/Dependencies
   - cd ../../ogre/build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fPIC
-  - make VERBOSE=1
+  - make
   - sudo make install
   - cd ../../glfw/build
   - cmake .. -DBUILD_SHARED_LIBS=ON
