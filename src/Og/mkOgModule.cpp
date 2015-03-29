@@ -16,11 +16,13 @@
 
 #include <Og/Input/mkOISInput.h>
 
-#include <Sound/mkSoundManager.h>
-
 #include <Ui/Widget/mkWidget.h>
 
 #include <Og/Widget/mkWOgViewport.h>
+
+#ifdef KIOG_SOUND
+#include <Sound/mkSoundManager.h>
+#endif
 
 #define CAP_FRAMERATE
 #include <thread>
