@@ -24,6 +24,7 @@ before_script:
   - make
   - sudo make install
   - cp -avr ./ogredeps ../../ogre
+  - cd ../..
   - cd ogre
   - mkdir build
   - cd build
