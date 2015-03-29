@@ -25,7 +25,8 @@ before_script:
   - cmake ..
   - make
   - sudo make install
-  - mv -v ./ogredeps ../../ogre/Dependencies
+  - cp -avr ./ogredeps ../../ogre
+  - mv ../../ogre/ogredeps ../../ogre/Dependencies
   - cd ../../ogre/build
   - cmake ..
   - make
