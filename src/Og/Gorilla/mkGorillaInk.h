@@ -8,12 +8,7 @@
 /* mk */
 #include <Og/mkOgForward.h>
 #include <Ui/Frame/mkInk.h>
-
-#ifdef GORILLA_V21
-#include <Og/Gorilla/Gorilla21.h>
-#else
 #include <Og/Gorilla/Gorilla.h>
-#endif
 
 namespace mk
 {

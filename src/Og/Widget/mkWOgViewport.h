@@ -9,12 +9,7 @@
 #include <Og/mkOgForward.h>
 #include <Og/Ogre/mkOgViewport.h>
 #include <Ui/Widget/mkSheet.h>
-
-#ifdef GORILLA_V21
-#include <Og/Gorilla/Gorilla21.h>
-#else
 #include <Og/Gorilla/Gorilla.h>
-#endif
 
 namespace mk
 {

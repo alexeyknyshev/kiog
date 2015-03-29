@@ -27,13 +27,13 @@ before_script:
   - mkdir kiui/build
   - mkdir build
   - cd ogredeps/build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fpic
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fPIC
   - make
   - sudo make install
   - cp -avr ./ogredeps ../../ogre
   - mv ../../ogre/ogredeps ../../ogre/Dependencies
   - cd ../../ogre/build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fpic
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fPIC
   - make
   - sudo make install
   - cd ../../glfw/build

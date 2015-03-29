@@ -6,11 +6,7 @@
 #include <Og/Ogre/mkOgViewport.h>
 
 /* MOC picking header */
-#ifdef GORILLA_V21
-#include <Og/Ogre/CollisionTools/CollisionTools21.h>
-#else
 #include <Og/Ogre/CollisionTools/CollisionTools.h>
-#endif
 
 #include <iostream>
 

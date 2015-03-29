@@ -20,7 +20,7 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef GORILLA_V21
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
 namespace Ogre
 {
 	typedef v1::HardwarePixelBufferSharedPtr HardwarePixelBufferSharedPtr;

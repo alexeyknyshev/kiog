@@ -9,12 +9,7 @@
 
 #include <Og/Space/mkSpaceViewport.h>
 #include <Og/Gorilla/mkGorillaWindow.h>
-
-#ifdef GORILLA_V21
-#include <Og/Gorilla/Gorilla21.h>
-#else
 #include <Og/Gorilla/Gorilla.h>
-#endif
 
 namespace mk
 {

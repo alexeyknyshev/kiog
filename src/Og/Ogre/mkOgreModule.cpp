@@ -101,7 +101,7 @@ namespace mk
 
 	void OgreModule::configAuto()
 	{
-#ifdef GORILLA_V21
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
 		this->setupRenderer("OpenGL 3+ Rendering Subsystem");
 #else
 		this->setupRenderer("OpenGL Rendering Subsystem");

@@ -11,12 +11,7 @@
 
 #include <Ogre.h>
 
-#ifdef GORILLA_V21
-#include <Og/Gorilla/Gorilla21.h>
-#else
 #include <Og/Gorilla/Gorilla.h>
-#endif
-
 #include <Og/Gorilla/RectPacking/Rect.h>
 #include <Og/Gorilla/RectPacking/GuillotineBinPack.h>
 

@@ -7,7 +7,7 @@
 #include <Ui/Widget/mkRootSheet.h>
 #include <Og/Gorilla/mkGorillaWindow.h>
 
-#ifdef GORILLA_V21
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
 namespace Ogre
 {
 	typedef v1::ManualObject ManualObject;

@@ -140,10 +140,10 @@ namespace mk
 		Form* demoheader = root->makeappend<Header>();
 		Form* demobody = root->makeappend<PartitionX>();
 		demoheader->makeappend<Label>("Pick a demo sample : ");
-#ifndef GORILLA_V21
-		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog", "Viewport", "3D Sheet" });
-#else
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
 		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog" });
+#else
+		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog", "Viewport", "3D Sheet" });		
 #endif
 		demoheader->makeappend<Dropdown>(std::bind(&pickSample, demobody, std::placeholders::_1), samples);
 	}
