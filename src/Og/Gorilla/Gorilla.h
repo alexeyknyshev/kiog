@@ -34,7 +34,14 @@
 
 #include "Ogre.h"
 #include "OgreFrameListener.h"
-#include "OgreHardwareVertexBuffer.h"
+
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
+#define GORILLA_V21
+#endif
+
+#ifdef GORILLA_V21
+#include "Compositor/Pass/OgreCompositorPassProvider.h"
+#endif
 
 #ifndef GORILLA_USES_EXCEPTIONS
 #  define GORILLA_USES_EXCEPTIONS 0
@@ -44,6 +51,20 @@
 #   define __FUNC__ __PRETTY_FUNCTION__
 #elif OGRE_COMP != OGRE_COMPILER_BORL
 #   define __FUNC__ "No function name info"
+#endif
+
+#ifdef GORILLA_V21
+namespace Ogre
+{
+	typedef v1::HardwareVertexBufferSharedPtr HardwareVertexBufferSharedPtr;
+	typedef v1::HardwareBufferManager HardwareBufferManager;
+	typedef v1::HardwareBuffer HardwareBuffer;
+	typedef v1::RenderOperation RenderOperation;
+	typedef v1::SimpleRenderable SimpleRenderable;
+	typedef v1::VertexData VertexData;
+	typedef v1::VertexDeclaration VertexDeclaration;
+	typedef v1::VertexElement VertexElement;
+}
 #endif
 
 namespace Gorilla
@@ -394,6 +415,18 @@ namespace Gorilla
 
 	};
 
+#ifdef GORILLA_V21
+	class GorillaPassProvider : public Ogre::CompositorPassProvider
+	{
+	public:
+		Ogre::CompositorPassDef* addPassDef(Ogre::CompositorPassType passType, Ogre::IdString customId, Ogre::uint32 rtIndex, Ogre::CompositorNodeDef* parentNodeDef);
+
+		Ogre::CompositorPass* addPass(const Ogre::CompositorPassDef* definition, Ogre::Camera* camera, Ogre::CompositorNode* parentNode, const Ogre::CompositorChannel& target, Ogre::SceneManager* sceneManager);
+
+		static Ogre::IdString mPassId;
+	};
+#endif
+
 	/* class. Silverback
 	   desc.
 	   Main singleton class for Gorilla
@@ -467,6 +500,10 @@ namespace Gorilla
 		std::vector<Screen*>                   mScreens;
 		std::vector<ScreenRenderable*>         mScreenRenderables;
 
+#ifdef GORILLA_V21
+		GorillaPassProvider mPassProvider;
+#endif
+
 	};
 
 	/*! class. GlyphData
@@ -525,10 +562,6 @@ namespace Gorilla
 
 		// @ monk
 		void addSprite(std::string name, float left, float top, float width, float height);
-
-		Ogre::MaterialPtr createOrGet2DMasterMaterial();
-
-		Ogre::MaterialPtr createOrGet3DMasterMaterial();
 
 		/*! function. getTexture
 			desc.
@@ -698,6 +731,11 @@ namespace Gorilla
 			colour_palette_index must be between or equal to 0 and 9.
 			*/
 		const Ogre::ColourValue &getMarkupColour(Ogre::uint colour_palette_index) const;
+
+#ifndef GORILLA_V21
+		Ogre::MaterialPtr  createOrGet2DMasterMaterial();
+		Ogre::MaterialPtr  createOrGet3DMasterMaterial();
+#endif
 
 	protected:
 
@@ -898,7 +936,11 @@ namespace Gorilla
 		Ogre::Vector2      mUV[4];
 	};
 
+#ifndef GORILLA_V21
 	class Screen : public LayerContainer, public Ogre::RenderQueueListener, public Ogre::GeneralAllocatedObject
+#else
+	class Screen : public LayerContainer, public Ogre::GeneralAllocatedObject
+#endif
 	{
 	public:
 
@@ -906,6 +948,8 @@ namespace Gorilla
 		friend class Layer;
 
 		inline Ogre::RenderTarget* getViewport() const { return mViewport; }
+
+		void renderOnce();
 
 		/*! desc. getTexelOffsetX
 				Helper function to get horizontal texel offset.
@@ -979,17 +1023,16 @@ namespace Gorilla
 			*/
 		~Screen();
 
+#ifndef GORILLA_V21
 		// Internal -- Not used, but required by renderQueueListener
 		void renderQueueStarted(Ogre::uint8, const Ogre::String&, bool&) {}
 
 		// Internal -- Called by Ogre to render the screen.
 		void renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation, bool& repeatThisInvocation);
+#endif
 
 		// Internal -- Prepares RenderSystem for rendering.
 		void _prepareRenderSystem();
-
-		// Internal -- Renders mVertexData to screen.
-		void renderOnce();
 
 		// Internal -- Used to transform vertices using units of pixels into screen coordinates.
 		void _transform(buffer<Vertex>& vertices, size_t begin, size_t end);
@@ -1167,6 +1210,7 @@ namespace Gorilla
 			desc.
 			Removes a rectangle from the layer and *deletes* it.
 			*/
+		void               destroyRectangle(size_t index);
 		void               destroyRectangle(Rectangle*);
 
 		/*! function. destroyAllRectangles

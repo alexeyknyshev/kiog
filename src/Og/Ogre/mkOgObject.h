@@ -9,7 +9,6 @@
 #include <Object/mkStem.h>
 #include <Object/Threading/mkScheduler.h>
 #include <Og/mkOgForward.h>
-#include <Core/Entity/mkEntityObserver.h>
 
 namespace mk
 {

@@ -27,7 +27,7 @@ before_script:
   - mkdir kiui/build
   - mkdir build
   - cd ogredeps/build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fpic
   - make
   - sudo make install
   - cp -avr ./ogredeps ../../ogre

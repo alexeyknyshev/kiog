@@ -33,6 +33,22 @@
 
 #include <OgreId.h>
 #include <Compositor/OgreCompositorManager2.h>
+
+#ifdef GORILLA_V21
+#include <OgreHlmsDatablock.h>
+#include <Compositor/OgreCompositorWorkspaceDef.h>
+#include <Compositor/OgreCompositorWorkspace.h>
+#include <Compositor/OgreCompositorNodeDef.h>
+#include <Compositor/Pass/OgreCompositorPass.h>
+#include <Compositor/Pass/OgreCompositorPassDef.h>
+#include <Compositor/Pass/OgreCompositorPassProvider.h>
+
+#include <Compositor/Pass/PassClear/OgreCompositorPassClearDef.h>
+#include <Compositor/Pass/PassScene/OgreCompositorPassSceneDef.h>
+
+#include <OgrePass.h>
+#endif
+
 #include <iostream>
 
 #pragma warning ( disable : 4244 )
@@ -78,12 +94,6 @@ template<> Gorilla::Silverback* Ogre::Singleton<Gorilla::Silverback>::msSingleto
 
 namespace Gorilla
 {
-
-	enum
-	{
-		SCREEN_RENDERQUEUE = Ogre::RENDER_QUEUE_OVERLAY
-	};
-
 	Ogre::ColourValue rgb(Ogre::uchar r, Ogre::uchar g, Ogre::uchar b, Ogre::uchar a)
 	{
 		static const Ogre::Real inv255 = Ogre::Real(0.00392156863);
@@ -474,6 +484,7 @@ namespace Gorilla
 		_calculateSpriteCoordinates(sprite);
 	}
 
+#ifndef GORILLA_V21
 	Ogre::MaterialPtr TextureAtlas::createOrGet2DMasterMaterial()
 	{
 		Ogre::MaterialPtr d2Material = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D");
@@ -576,6 +587,35 @@ namespace Gorilla
 		m3DPass->getTextureUnitState(0)->setTextureName(mTexture->getName());
 
 	}
+#else
+	void  TextureAtlas::_create2DMaterial()
+	{
+		std::string matName = "Gorilla2D." + mTexture->getName();
+		m2DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla2D21")->clone(matName);
+		m2DPass = m2DMaterial->getTechnique(0)->getPass(0);
+
+		Ogre::TextureUnitState* texUnit = m2DPass->createTextureUnitState();
+		//texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		//texUnit->setTextureFiltering(Ogre::FO_NONE, Ogre::FO_NONE, Ogre::FO_NONE);
+		//texUnit->setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_NONE);
+		m2DPass->setVertexColourTracking(Ogre::TVC_DIFFUSE);
+
+		m2DPass->getTextureUnitState(0)->setTexture(mTexture);
+	}
+
+	void  TextureAtlas::_create3DMaterial()
+	{
+		std::string matName = "Gorilla3D." + mTexture->getName();
+		m3DMaterial = Ogre::MaterialManager::getSingletonPtr()->getByName("Gorilla3D21")->clone(matName);
+		m3DPass = m3DMaterial->getTechnique(0)->getPass(0);
+
+		Ogre::TextureUnitState* texUnit = m3DPass->createTextureUnitState();
+		//texUnit->setTextureAddressingMode(Ogre::TextureUnitState::TAM_CLAMP);
+		//texUnit->setTextureFiltering(Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC, Ogre::FO_ANISOTROPIC);
+		
+		m3DPass->getTextureUnitState(0)->setTexture(mTexture);
+	}
+#endif
 
 	void  TextureAtlas::_calculateSpriteCoordinates(Sprite* sprite)
 	{
@@ -694,12 +734,84 @@ namespace Gorilla
 
 	}
 
+#ifdef GORILLA_V21
+	class GorillaPassDef : public Ogre::CompositorPassDef
+	{
+	public:
+		GorillaPassDef(Ogre::uint32 rtIndex)
+			: Ogre::CompositorPassDef(Ogre::PASS_CUSTOM, rtIndex)
+		{}
+	};
+
+	class GorillaPass : public Ogre::CompositorPass
+	{
+	public:
+		GorillaPass(const Ogre::CompositorPassDef* definition, const Ogre::CompositorChannel& target, Ogre::CompositorNode* parentNode, Ogre::Camera* camera)
+			: Ogre::CompositorPass(definition, target, parentNode)
+			, mCamera(camera)
+		{}
+
+		virtual void execute(const Ogre::Camera* lodCameraconst)
+		{
+			Screen* screen = Ogre::any_cast<Screen*>(mCamera->getUserAny());
+			screen->renderOnce();
+		}
+
+	protected:
+		Ogre::Camera* mCamera;
+	};
+
+	Ogre::CompositorPassDef* GorillaPassProvider::addPassDef(Ogre::CompositorPassType passType, Ogre::IdString customId, Ogre::uint32 rtIndex, Ogre::CompositorNodeDef* parentNodeDef)
+	{
+		if(customId == mPassId)
+			return OGRE_NEW GorillaPassDef(rtIndex);
+		return nullptr;
+	}
+
+	Ogre::CompositorPass* GorillaPassProvider::addPass(const Ogre::CompositorPassDef* definition, Ogre::Camera* camera, Ogre::CompositorNode* parentNode
+		, const Ogre::CompositorChannel& target, Ogre::SceneManager* sceneManager)
+	{
+		return OGRE_NEW GorillaPass(definition, target, parentNode, camera);
+	}
+
+	Ogre::IdString GorillaPassProvider::mPassId("Gorilla");
+#endif
 
 	Silverback::Silverback()
 	{
-
+#ifdef GORILLA_V21
 		Ogre::Root::getSingletonPtr()->addFrameListener(this);
 
+		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
+		compositorManager->setCompositorPassProvider(&mPassProvider);
+
+		Ogre::CompositorNodeDef* nodeDef = compositorManager->addNodeDefinition("AutoGen " + (Ogre::IdString("Gorilla Workspace") + Ogre::IdString("/Node")).getReleaseText());
+
+		//Input texture
+		nodeDef->addTextureSourceName("WindowRT", 0, Ogre::TextureDefinitionBase::TEXTURE_INPUT);
+
+		nodeDef->setNumTargetPass(1);
+		{
+			Ogre::CompositorTargetDef* targetDef = nodeDef->addTargetPass("WindowRT");
+			targetDef->setNumPasses(3);
+			{
+				{
+					Ogre::CompositorPassClearDef* passClear = static_cast<Ogre::CompositorPassClearDef*>(targetDef->addPass(Ogre::PASS_CLEAR));
+					passClear->mColourValue = Ogre::ColourValue::Black;
+				}
+				{
+					Ogre::CompositorPassSceneDef* passScene = static_cast<Ogre::CompositorPassSceneDef*>(targetDef->addPass(Ogre::PASS_SCENE));
+					passScene->mShadowNode = Ogre::IdString();
+				}
+				{
+					GorillaPassDef* passGorilla = static_cast<GorillaPassDef*>(targetDef->addPass(Ogre::PASS_CUSTOM, GorillaPassProvider::mPassId));
+				}
+			}
+		}
+
+		Ogre::CompositorWorkspaceDef* workDef = compositorManager->addWorkspaceDefinition("Gorilla Workspace");
+		workDef->connectOutput(nodeDef->getName(), 0);
+#endif
 	}
 
 	Silverback::~Silverback()
@@ -739,11 +851,14 @@ namespace Gorilla
 		return createScreen(sceneMgr, viewport, atlas);
 	}
 
-	Screen* Silverback::createScreen(Ogre::SceneManager* sceneMgr, Ogre::RenderTarget *viewport, TextureAtlas *atlas)
+	Screen* Silverback::createScreen(Ogre::SceneManager* sceneMgr, Ogre::RenderTarget* viewport, TextureAtlas* atlas)
 	{
-		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
-		compositorManager->addWorkspace(sceneMgr, viewport, sceneMgr->getCameras().at(0), "Basic Workspace", true);
 		Screen* screen = OGRE_NEW Screen(sceneMgr, viewport, atlas);
+#ifdef GORILLA_V21
+		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
+		Ogre::CompositorWorkspace* workspace = compositorManager->addWorkspace(sceneMgr, viewport, sceneMgr->getCameras().at(0), "Gorilla Workspace", true);
+		workspace->getDefaultCamera()->setUserAny(Ogre::Any(screen));
+#endif
 		mScreens.push_back(screen);
 		return screen;
 	}
@@ -1094,25 +1209,29 @@ namespace Gorilla
 
 		mVertexTransform.makeTransform(Ogre::Vector3::ZERO, mScale, Ogre::Quaternion(1, 0, 0, 0));
 
+#ifndef GORILLA_V21
 		mSceneMgr->addRenderQueueListener(this);
+#endif
 		_createVertexBuffer();
 	}
 
 	Screen::~Screen()
 	{
+#ifndef GORILLA_V21
 		mSceneMgr->removeRenderQueueListener(this);
-
+#endif
 		for(Viewport* viewport : mViewports)
 			OGRE_DELETE viewport;
 	}
 
-
+#ifndef GORILLA_V21
 	void Screen::renderQueueEnded(Ogre::uint8 queueGroupId, const Ogre::String& invocation, bool& repeatThisInvocation)
 	{
 		if(queueGroupId == Ogre::RENDER_QUEUE_OVERLAY &&  mRenderSystem->_getViewport() == mViewport->getViewport(1) && mRenderSystem->_getViewport()->getOverlaysEnabled())
 			if(mIsVisible && mLayers.size())
 				renderOnce();
 	}
+#endif
 
 	void Screen::_prepareRenderSystem()
 	{
@@ -1120,6 +1239,9 @@ namespace Gorilla
 		mRenderSystem->_setProjectionMatrix(Ogre::Matrix4::IDENTITY);
 		mRenderSystem->_setViewMatrix(Ogre::Matrix4::IDENTITY);
 		mSceneMgr->_setPass(mAtlas->get2DPass());
+#ifdef GORILLA_V21
+		mRenderSystem->_setHlmsBlendblock(mAtlas->get2DPass()->getBlendblock());
+#endif
 	}
 
 	void Screen::renderOnce()
@@ -1208,7 +1330,6 @@ namespace Gorilla
 		, mRight(left + width)
 		, mBottom(top + height)
 	{
-		//std::cerr << "Create Gorilla Viewport of size " << width << " , " << height << std::endl;
 		this->_setup();
 	}
 
@@ -1338,7 +1459,11 @@ namespace Gorilla
 
 
 	ScreenRenderable::ScreenRenderable(Ogre::IdType id, Ogre::ObjectMemoryManager* objectMemoryManager, Ogre::SceneManager* sceneMgr, const Ogre::Vector2& maxSize, TextureAtlas* atlas)
+#ifndef GORILLA_V21
 		: SimpleRenderable(id, objectMemoryManager), LayerContainer(atlas), mMaxSize(maxSize)
+#else
+		: SimpleRenderable(id, objectMemoryManager, sceneMgr), LayerContainer(atlas), mMaxSize(maxSize)
+#endif
 		, mSceneMgr(sceneMgr)
 	{
 		mRenderOpPtr = &mRenderOp;
@@ -1441,17 +1566,20 @@ namespace Gorilla
 		return rectangle;
 	}
 
-	void Layer::destroyRectangle(Rectangle* rectangle)
+	void Layer::destroyRectangle(size_t index)
 	{
-		if(rectangle == 0)
-			return;
-
-		size_t index = rectangle->mIndex;
-		mRectangles.erase(std::find(mRectangles.begin(), mRectangles.end(), rectangle));
+		Rectangle* rectangle = mRectangles[index];
+		mRectangles.erase(mRectangles.begin() + index);
+		//mRectangles.erase(std::find(mRectangles.begin(), mRectangles.end(), rectangle));
 		for(auto it = mRectangles.begin() + index; it != mRectangles.end(); ++it)
 			(*it)->mIndex = index++;
 		OGRE_DELETE rectangle;
 		_markDirty();
+	}
+
+	void Layer::destroyRectangle(Rectangle* rectangle)
+	{
+		this->destroyRectangle(rectangle->index());
 	}
 
 	void Layer::destroyAllRectangles()
