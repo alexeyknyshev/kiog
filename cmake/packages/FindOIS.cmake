@@ -2,31 +2,30 @@
 
 include(FindPackageHandleStandardArgs)
 
-set(OIS_INCLUDE_PATHS
-		/usr/local/include
-		/usr/X11/include
-		/usr/include
-		/opt/local/include
-)
+set(OIS_LIB_NAME OIS)
+set(OIS_LIB_NAME_DEBUG OIS)
 
-set(OIS_LIB_PATHS
-		/usr/local
-		/usr/X11
-		/usr
-)
-
-if(WIN32)
+if (WIN32)
 	set(OIS_INCLUDE_PATHS $ENV{PROGRAMFILES}/OIS/include ${OIS_INCLUDE_PATHS})
 	set(OIS_LIB_PATHS $ENV{PROGRAMFILES}/OIS/lib ${OIS_LIB_PATHS})
-endif()
-
-
-find_path(OIS_INCLUDE_DIR NAMES includes/OIS.h OIS.h PATHS ${OIS_INCLUDE_PATHS} NO_DEFAULT_PATH)
-
-find_library(OIS_LIBRARIES NAMES OIS PATHS ${OIS_LIB_PATHS} PATH_SUFFIXES a lib64 lib NO_DEFAULT_PATH)
-
-if (CMAKE_CONFIGURATION_TYPES MATCHES "Debug")
-    find_library(OIS_LIBRARIES_DEBUG NAMES OIS_d PATHS ${OIS_LIB_PATHS} PATH_SUFFIXES a lib64 lib NO_DEFAULT_PATH)
+    set(OIS_LIB_NAME_DEBUG OIS_d)
+else ()
+    set(OIS_INCLUDE_PATHS
+            /usr/local/include
+            /usr/X11/include
+            /usr/include
+            /opt/local/include
+    )
+    set(OIS_LIB_PATHS
+            /usr/local
+            /usr/X11
+            /usr
+    )
 endif ()
+
+find_path(OIS_INCLUDE_DIR NAMES OIS/OIS.h OIS.h PATHS ${OIS_INCLUDE_PATHS} NO_DEFAULT_PATH)
+
+find_library(OIS_LIBRARIES NAMES ${OIS_LIB_NAME} PATHS ${OIS_LIB_PATHS} PATH_SUFFIXES a lib64 lib NO_DEFAULT_PATH)
+find_library(OIS_LIBRARIES_DEBUG NAMES ${OIS_LIB_NAME_DEBUG} PATHS ${OIS_LIB_PATHS} PATH_SUFFIXES a lib64 lib NO_DEFAULT_PATH)
 
 find_package_handle_standard_args(OIS DEFAULT_MSG OIS_LIBRARIES OIS_INCLUDE_DIR)
