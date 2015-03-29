@@ -8,7 +8,19 @@ project(KIOG)
 
 set(CMAKE_MODULE_PATH ${KIOG_SOURCE_DIR}/cmake/modules ${KIOG_SOURCE_DIR}/cmake/packages ${CMAKE_MODULE_PATH})
 
-set(WARNING_LEVEL "/W4")
+if (MSVC)
+    add_compile_options(/W4)
+#else ()
+#    add_compile_options("-Wall -Wno-long-long -pedantic")
+endif ()
+
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=gnu++11)
+    add_definitions("-DSTD_NO_MAKE_UNIQUE")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -std=c++11)
+    add_definitions("-DSTD_NO_MAKE_UNIQUE")
+endif ()
 
 find_package(Ogre)
 find_package(OIS)

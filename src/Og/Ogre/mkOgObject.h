@@ -14,8 +14,6 @@
 
 namespace mk
 {
-	//template class __declspec(dllimport) StoreObserver<Entity>;
-
 	class MK_OG_EXPORT OgObject : public Object
     {
     public:
