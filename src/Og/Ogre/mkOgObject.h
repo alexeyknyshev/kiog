@@ -8,7 +8,6 @@
 /* mk headers */
 #include <Object/mkStem.h>
 #include <Object/Threading/mkScheduler.h>
-#include <Utils/Store/mkArray.h>
 #include <Og/mkOgForward.h>
 #include <Core/Entity/mkEntityObserver.h>
 

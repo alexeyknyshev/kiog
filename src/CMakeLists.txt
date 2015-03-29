@@ -49,6 +49,7 @@ include_directories(${OGRE_INCLUDE_DIR})
 include_directories(${OGRE_INCLUDE_DIR}/OGRE)
 include_directories(${OGRE_INCLUDE_DIR}/Components/RTShaderSystem/)
 include_directories(${OIS_INCLUDE_DIR})
+include_directories(${OIS_INCLUDE_DIR}/OIS)
 include_directories(${KIUI_INCLUDE_DIR})
 
 #install(FILES ${HEADER_FILES} DESTINATION "include")
