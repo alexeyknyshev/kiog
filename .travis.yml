@@ -19,9 +19,11 @@ install:
 before_script:
   - hg clone https://bitbucket.org/cabalistic/ogredeps
   - hg clone http://bitbucket.org/sinbad/ogre -u v2-1
+  - git clone https://github.com/glfw/glfw
   - git clone https://github.com/novembermonk/kiui
   - mkdir ogredeps/build
   - mkdir ogre/build
+  - mkdir glfw/build
   - mkdir kiui/build
   - mkdir build
   - cd ogredeps/build
@@ -32,6 +34,10 @@ before_script:
   - mv ../../ogre/ogredeps ../../ogre/Dependencies
   - cd ../../ogre/build
   - cmake .. -DCMAKE_BUILD_TYPE=Release
+  - make
+  - sudo make install
+  - cd ../../glfw/build
+  - cmake .. -DBUILD_SHARED_LIBS=ON
   - make
   - sudo make install
   - cd ../../kiui/build
