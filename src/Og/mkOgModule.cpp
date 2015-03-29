@@ -56,7 +56,7 @@ namespace mk
 	OgModule::OgModule(const string& pluginsPath, const string& resourcePath)
 		: mOgreModule(make_unique<OgreModule>(pluginsPath, resourcePath))
 		, mInput(make_unique<OISInput>())
-#ifdef OG_SOUND
+#ifdef KIOG_SOUND
 		, mSoundManager(make_unique<SoundManager>())
 #endif
 	{}
@@ -72,7 +72,7 @@ namespace mk
 		mOgreModule->initEnd();
 
 		// Sound
-#ifdef OG_SOUND
+#ifdef KIOG_SOUND
 		mSoundManager->init();
 #endif
 	}
@@ -85,7 +85,7 @@ namespace mk
 		mOgreModule->initEnd();
 
 		// Sound
-#ifdef OG_SOUND
+#ifdef KIOG_SOUND
 		mSoundManager->init();
 #endif
 	}
@@ -95,7 +95,7 @@ namespace mk
 		mOgreModule->nextFrame();
 		mInput->nextFrame();
 
-#ifdef OG_SOUND
+#ifdef KIOG_SOUND
 		if(mOgreModule->contextActive())
 			mSoundManager->threadUpdate();
 #endif

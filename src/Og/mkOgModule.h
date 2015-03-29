@@ -52,14 +52,14 @@ namespace mk
 		OgWindow* createWindow(const string& name, int width, int height, bool fullScreen, User* user = nullptr);
 
 		OgreModule* ogreModule() { return mOgreModule.get(); }
-#ifdef OG_SOUND
+#ifdef KIOG_SOUND
 		SoundManager* soundManager() { return mSoundManager.get(); }
 #endif
 
     private:
 		unique_ptr<OgreModule> mOgreModule;
 		unique_ptr<OISInput> mInput;
-#ifdef OG_SOUND
+#ifdef KIOG_SOUND
 		unique_ptr<SoundManager> mSoundManager;
 #endif
 

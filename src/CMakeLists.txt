@@ -6,9 +6,8 @@ file(GLOB HEADER_FILES 	"${CMAKE_CURRENT_SOURCE_DIR}/Og/*.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Gorilla/RectPacking/*.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Input/*.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/*.h"
-						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/Shape/mkOgreShape.h"
-						#"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/Shape/*.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/CollisionTools/*.h"
+						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Space/*.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Widget/*.h")
 
 file(GLOB SOURCE_FILES 	"${CMAKE_CURRENT_SOURCE_DIR}/Og/*.cpp"
@@ -16,9 +15,8 @@ file(GLOB SOURCE_FILES 	"${CMAKE_CURRENT_SOURCE_DIR}/Og/*.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Gorilla/RectPacking/*.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Input/*.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/*.cpp"
-						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/Shape/mkOgreShape.cpp"
-						#"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/Shape/*.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Ogre/CollisionTools/*.cpp"
+						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Space/*.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/Og/Widget/*.cpp")
 						
 if (BUILD_SOUND)
