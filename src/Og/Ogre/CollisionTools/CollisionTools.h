@@ -19,6 +19,16 @@
 namespace Ogre
 {
 	typedef v1::Entity Entity;
+	typedef v1::ManualObject ManualObject;
+	typedef v1::RenderOperation RenderOperation;
+	typedef v1::VertexData VertexData;
+	typedef v1::IndexData IndexData;
+	typedef v1::VertexElement VertexElement;
+	typedef v1::HardwareBuffer HardwareBuffer;
+	typedef v1::HardwareVertexBuffer HardwareVertexBuffer;
+	typedef v1::HardwareVertexBufferSharedPtr HardwareVertexBufferSharedPtr;
+	typedef v1::HardwareIndexBuffer HardwareIndexBuffer;
+	typedef v1::HardwareIndexBufferSharedPtr HardwareIndexBufferSharedPtr;
 }
 #endif
 
