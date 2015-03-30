@@ -93,8 +93,9 @@ namespace mk
 		SpaceForm* sheet3D = viewport->makeappend<SpaceForm>(viewport->widget()->as<SpaceViewport>());
 		sheet3D->widget()->frame()->setSize(480.f, 350.f);
 
-		//Window* window = createUiTestWindow(sheet3D);
-		createUiTestMyGuiImageSkin(sheet3D);
+		Window* window = createUiTestWindow(sheet3D);
+		window->widget()->as<WWindow>()->toggleMovable();
+		//createUiTestMyGuiImageSkin(sheet3D);
 	}
 
 	void pickSample(Form* root, const string& name)

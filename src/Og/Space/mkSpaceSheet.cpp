@@ -71,6 +71,7 @@ namespace mk
 	SpaceSheet::~SpaceSheet()
 	{
 		Sheet::clear(); // @kludge : destroy the contents now because layer() is a virtual function and is needed in the destructor
+		this->cleanup();
 		mFrame.reset();
 		this->uiWindow()->inkWindow()->as<GorillaWindow>()->releaseTarget(mTarget);
 	}

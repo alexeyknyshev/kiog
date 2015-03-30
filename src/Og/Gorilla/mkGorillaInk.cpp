@@ -235,6 +235,22 @@ namespace mk
 		return 0.f;
 	}
 
+	size_t GorillaInk::caretIndex(float x, float y)
+	{
+		return mCaption->_calculateCaretIndex(x);
+	}
+
+	void GorillaInk::caretCoords(size_t index, float& caretX, float& caretY, float& caretHeight)
+	{
+		if(mCaption)
+		{
+			caretY = 0.f;
+			mCaption->_calculateCaretCoords(index, caretX, caretHeight);
+			caretX += mFrame->inkstyle()->mPadding[DIM_X];
+			caretY += mFrame->inkstyle()->mPadding[DIM_Y];
+		}
+	}
+
 	void GorillaInk::updateContent()
 	{
 		this->updateImage();

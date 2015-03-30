@@ -98,17 +98,20 @@ namespace mk
 
 	bool OISInput::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 	{
-		mPressed = true;
+		if(mPressed[id])
+			this->mouseReleased(arg, id);
+
+		mPressed[id] = true;
 		mDispatcher->dispatchMousePressed(float(arg.state.X.abs), float(arg.state.Y.abs), convertOISButton(id));
 		return true;
 	}
 
 	bool OISInput::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 	{
-		if(!mPressed)
+		if(!mPressed[id])
 			return true;
 
-		mPressed = false;
+		mPressed[id] = false;
 		mDispatcher->dispatchMouseReleased(float(arg.state.X.abs), float(arg.state.Y.abs), convertOISButton(id));
 		return true;
 	}

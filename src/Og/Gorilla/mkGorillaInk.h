@@ -52,6 +52,8 @@ namespace mk
 		string image();
 
 		float contentSize(Dimension dim);
+		size_t caretIndex(float x, float y);
+		void caretCoords(size_t index, float& caretX, float& caretY, float& caretHeight);
 
 		void updateImage();
 		void updateCaption();

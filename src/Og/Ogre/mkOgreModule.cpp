@@ -121,6 +121,17 @@ namespace mk
 		compositorManager->createBasicWorkspaceDef("Basic Workspace", Ogre::ColourValue(0.15f, 0.15f, 0.15f));
 		compositorManager->createBasicWorkspaceDef("Black Workspace", Ogre::ColourValue::Black);
 
+		Ogre::MaterialManager* materialManager = Ogre::MaterialManager::getSingletonPtr();
+		Ogre::MaterialPtr material = materialManager->create("debug_invisible", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		material->setReceiveShadows(false);
+		Ogre::Pass* pass = material->getTechnique(0)->getPass(0);
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
+#else
+		pass->setCullingMode(Ogre::CULL_NONE);
+		pass->setColourWriteEnabled(false);
+		pass->setDepthWriteEnabled(false);
+#endif
+
 		this->loadResources();
 	}
 

@@ -39,6 +39,10 @@
 #define GORILLA_V21
 #endif
 
+#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR == 0
+#define GORILLA_V20
+#endif
+
 #ifdef GORILLA_V21
 #include "Compositor/Pass/OgreCompositorPassProvider.h"
 #endif
@@ -2879,6 +2883,10 @@ namespace Gorilla
 		void               _redraw();
 
 		void               _calculateDrawSize(Ogre::Vector2& size);
+		size_t             _calculateCaretIndex(float x);
+		void               _calculateCaretCoords(size_t index, float& cursor, float& height);
+		float              _charWidth(unsigned char thisChar, unsigned char lastChar);
+		float              _calculateLength(size_t from, size_t to);
 
 	protected:
 

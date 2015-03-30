@@ -46,7 +46,7 @@ namespace mk
 
 		InputDispatcher* mDispatcher;
 
-		bool mPressed;
+		std::map<OIS::MouseButtonID, bool> mPressed;
         bool mShutdownRequested;
     };
 

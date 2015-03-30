@@ -32,12 +32,15 @@
 #include "Gorilla.h"
 
 #include <OgreId.h>
+
+#ifdef GORILLA_V20
 #include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorWorkspace.h>
+#endif
 
 #ifdef GORILLA_V21
 #include <OgreHlmsDatablock.h>
 #include <Compositor/OgreCompositorWorkspaceDef.h>
-#include <Compositor/OgreCompositorWorkspace.h>
 #include <Compositor/OgreCompositorNodeDef.h>
 #include <Compositor/Pass/OgreCompositorPass.h>
 #include <Compositor/Pass/OgreCompositorPassDef.h>
@@ -779,6 +782,14 @@ namespace Gorilla
 
 	Silverback::Silverback()
 	{
+#ifndef GORILLA_V21
+		Ogre::Root::getSingletonPtr()->addFrameListener(this);
+#endif
+
+#ifdef GORILLA_V20
+		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
+		compositorManager->createBasicWorkspaceDef("Gorilla Workspace", Ogre::ColourValue::Black);
+#endif
 #ifdef GORILLA_V21
 		Ogre::Root::getSingletonPtr()->addFrameListener(this);
 
@@ -854,7 +865,7 @@ namespace Gorilla
 	Screen* Silverback::createScreen(Ogre::SceneManager* sceneMgr, Ogre::RenderTarget* viewport, TextureAtlas* atlas)
 	{
 		Screen* screen = OGRE_NEW Screen(sceneMgr, viewport, atlas);
-#ifdef GORILLA_V21
+#ifdef GORILLA_V20
 		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
 		Ogre::CompositorWorkspace* workspace = compositorManager->addWorkspace(sceneMgr, viewport, sceneMgr->getCameras().at(0), "Gorilla Workspace", true);
 		workspace->getDefaultCamera()->setUserAny(Ogre::Any(screen));
@@ -1489,7 +1500,6 @@ namespace Gorilla
 			_renderVertices(false);
 			calculateBoundingBox();
 		}
-
 	}
 
 	void ScreenRenderable::calculateBoundingBox()
@@ -2392,45 +2402,82 @@ namespace Gorilla
 		mFixedWidth = false;
 	}
 
-	void Caption::_calculateDrawSize(Ogre::Vector2& retSize)
+	float Caption::_charWidth(unsigned char thisChar, unsigned char lastChar)
 	{
+		if(thisChar == ' ')
+			return mGlyphData->mSpaceLength;
 
-		Ogre::Real cursor = 0,
-			kerning = 0;
+		if(thisChar < mGlyphData->mRangeBegin || thisChar > mGlyphData->mRangeEnd)
+			return 0.f;
 
+		Glyph* glyph = mGlyphData->getGlyph(thisChar);
+		if(glyph == 0)
+			return 0.f;
+
+		Ogre::Real kerning = glyph->getKerning(lastChar);
+		if(kerning == 0.f)
+			kerning = mGlyphData->mLetterSpacing;
+
+		return _getAdvance(glyph, kerning);
+	}
+
+	float Caption::_calculateLength(size_t from, size_t to)
+	{
 		unsigned char thisChar = 0, lastChar = 0;
-		Glyph* glyph = 0;
-		retSize.x = 0;
-		retSize.y = mGlyphData->mLineHeight;
-
-		for(size_t i = 0; i < mText.length(); i++)
+		float cursor = 0.f;
+		for(size_t i = from; i < to; i++)
 		{
 			thisChar = mText[i];
 
-			if(thisChar == ' ')
-			{
-				lastChar = thisChar;
-				cursor += mGlyphData->mSpaceLength;
-				continue;
-			}
+			cursor += _charWidth(thisChar, lastChar);
 
 			if(thisChar < mGlyphData->mRangeBegin || thisChar > mGlyphData->mRangeEnd)
-			{
 				lastChar = 0;
-				continue;
-			}
+			else
+				lastChar = thisChar;
+		}
+		return cursor;
+	}
 
-			glyph = mGlyphData->getGlyph(thisChar);
-			if(glyph == 0)
-				continue;
-			kerning = glyph->getKerning(lastChar);
-			if(kerning == 0)
-				kerning = mGlyphData->mLetterSpacing;
+	size_t Caption::_calculateCaretIndex(float x)
+	{
+		unsigned char thisChar = 0, lastChar = 0;
+		float cursor = 0.f;
 
-			cursor += _getAdvance(glyph, kerning);
-			lastChar = thisChar;
+		for(size_t index = 0; index < mText.length(); index++)
+		{
+			thisChar = mText[index];
 
-		} // for
+			float charWidth = _charWidth(thisChar, lastChar);
+			if(cursor + charWidth > x)
+				return index;
+
+			cursor += charWidth;
+
+			if(thisChar < mGlyphData->mRangeBegin || thisChar > mGlyphData->mRangeEnd)
+				lastChar = 0;
+			else
+				lastChar = thisChar;
+		}
+
+		return mText.length();
+	}
+
+	void Caption::_calculateCaretCoords(size_t index, float& cursor, float& height)
+	{
+		cursor = _calculateLength(0, index);
+		height = mGlyphData->mLineHeight;
+	}
+
+	void Caption::_calculateDrawSize(Ogre::Vector2& retSize)
+	{
+		Ogre::Real cursor = 0;
+		Ogre::Real kerning = 0;
+
+		retSize.x = 0;
+		retSize.y = mGlyphData->mLineHeight;
+
+		cursor = _calculateLength(0, mText.length());
 
 		retSize.x = cursor - kerning;
 	}
