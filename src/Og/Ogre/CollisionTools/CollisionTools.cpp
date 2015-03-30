@@ -428,7 +428,7 @@ namespace Collision
 				assert(maxDistance >= 0);
 				if(inter.first && inter.second < maxDistance)
 				{
-					ret.push_back(CollisionTools::RayQueryEntry(data._Ptr, inter.second));
+					ret.push_back(CollisionTools::RayQueryEntry(&(*data), inter.second));
 					if(stopOnFirstPositive && data->CollisionType == COLLISION_BOX)
 						Stop = true;
 				}
@@ -455,7 +455,7 @@ namespace Collision
 				inter.second = abs(inter.second);
 				if(inter.first && inter.second < maxDistance)
 				{
-					ret.push_back(CollisionTools::RayQueryEntry(data._Ptr, inter.second));
+					ret.push_back(CollisionTools::RayQueryEntry(&(*data), inter.second));
 					if(stopOnFirstPositive)
 						Stop = true;
 				}
