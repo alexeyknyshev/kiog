@@ -40,6 +40,8 @@
 
 #ifdef GORILLA_V21
 #include <OgreHlmsDatablock.h>
+#include <Compositor/OgreCompositorManager2.h>
+#include <Compositor/OgreCompositorWorkspace.h>
 #include <Compositor/OgreCompositorWorkspaceDef.h>
 #include <Compositor/OgreCompositorNodeDef.h>
 #include <Compositor/Pass/OgreCompositorPass.h>
