@@ -2,7 +2,7 @@ language: cpp
 
 compiler:
   - gcc
-#  - clang
+  - clang
     
 install:
   - sudo add-apt-repository ppa:smspillaz/cmake-2.8.12 -y
@@ -27,7 +27,7 @@ before_script:
   - mkdir kiui/build
   - mkdir build
   - cd ogredeps/build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_C_FLAGS=-fPIC
   - make
   - sudo make install
   - cp -avr ./ogredeps ../../ogre
