@@ -1,6 +1,6 @@
 # KIOG BUILD SYSTEM
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.3)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 cmake_policy(SET CMP0003 NEW)
 
@@ -22,9 +22,9 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_definitions("-DSTD_NO_MAKE_UNIQUE")
 endif ()
 
-find_package(Ogre)
-find_package(OIS)
-find_package(kiui)
+find_package(Ogre 2.0 REQUIRED)
+find_package(OIS REQUIRED)
+find_package(kiui REQUIRED)
 		
 add_subdirectory(src)
 add_subdirectory(example)
