@@ -30,7 +30,7 @@ add_definitions(-DKIOG_EXAMPLE_RESSOURCE_PATH="${CMAKE_INSTALL_PREFIX}/data")
 		
 add_subdirectory(src)
 
-set(KIOG_BUILD_EXAMPLE yes CACHE BOOL "Build example kiui app")
+set(KIOG_BUILD_EXAMPLE yes CACHE BOOL "Build example kiog app")
 if (KIOG_BUILD_EXAMPLE)
     add_subdirectory(example)
 endif()

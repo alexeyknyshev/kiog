@@ -10,9 +10,13 @@
 
 #include <Og/mkOgModule.h>
 
+#ifndef KIOG_EXAMPLE_RESSOURCE_PATH
+  #define KIOG_EXAMPLE_RESSOURCE_PATH "../data/"
+#endif
+
 int main(int argc, char *argv[])
 {
-	mk::OgModule ogModule("plugins.cfg", "../../Data/");
+	mk::OgModule ogModule("plugins.cfg", KIOG_EXAMPLE_RESSOURCE_PATH);
 	ogModule.initAuto();
 
 	mk::OgWindow& ogWindow = ogModule.createWindow("kiog v0.1", 1200, 800, false);

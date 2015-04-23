@@ -51,6 +51,7 @@ include_directories(${OGRE_INCLUDE_DIR}/Components/RTShaderSystem/)
 include_directories(${OIS_INCLUDE_DIR})
 include_directories(${OIS_INCLUDE_DIR}/OIS)
 include_directories(${KIUI_INCLUDE_DIR})
+include_directories(${KIUI_INCLUDE_DIR}/kiui)
 
 #install(FILES ${HEADER_FILES} DESTINATION "include")
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION "include")
