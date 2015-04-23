@@ -25,6 +25,14 @@ endif ()
 find_package(Ogre 2.0 REQUIRED)
 find_package(OIS REQUIRED)
 find_package(kiui REQUIRED)
+
+add_definitions(-DKIOG_EXAMPLE_RESSOURCE_PATH="${CMAKE_INSTALL_PREFIX}/data")
 		
 add_subdirectory(src)
-add_subdirectory(example)
+
+set(KIOG_BUILD_EXAMPLE yes CACHE BOOL "Build example kiui app")
+if (KIOG_BUILD_EXAMPLE)
+    add_subdirectory(example)
+endif()
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/ DESTINATION kiog/data)
