@@ -235,6 +235,8 @@ namespace mk
 
 	size_t GorillaInk::caretIndex(float x, float y)
 	{
+		if(!mCaption)
+			return 0;
 		return mCaption->_calculateCaretIndex(x);
 	}
 
@@ -290,9 +292,6 @@ namespace mk
 
 	void GorillaInk::updateFrame()
 	{
-		if(&mFrame.style() == &MoveCursor::cls())
-			int i = 0;
-
 		if(skin().mEmpty || !mVisible || mFrame.dsize(DIM_X) == 0.f || mFrame.dsize(DIM_Y) == 0.f)
 			return;
 		
@@ -361,23 +360,23 @@ namespace mk
 		if(skin().mEmpty || !mVisible)
 			return;
 
-		if(mCaption && mFrame.widget().label().empty())
+		if(mCaption && skin().textColour().a() == 0.f) // mFrame.widget().label().empty())
 		{
 			mLayer.layer().destroyCaption(mCaption);
 			mCaption = nullptr;
 			return;
 		}
-		else if(!mCaption && !mFrame.widget().label().empty())
+		else if(!mCaption && skin().textColour().a() != 0.f) // !mFrame.widget().label().empty())
 		{
 			mCaption = mLayer.layer().createCaption(9, mFrame.dabsolute(DIM_X), mFrame.dabsolute(DIM_Y), mFrame.widget().label());
 		}
 
-		if(!mFrame.widget().label().empty())
+		if(skin().textColour().a() != 0.f) // !mFrame.widget().label().empty())
 		{
 			mCaption->text(mFrame.widget().label());
 			mCaption->size(mFrame.dsize(DIM_X), mFrame.dsize(DIM_Y));
 			mCaption->align(Gorilla::TextAlign_Left);
-			mCaption->vertical_align(Gorilla::VerticalAlign_Middle);
+			mCaption->vertical_align(Gorilla::VerticalAlign_Top);
 			mCaption->no_background();
 			mCaption->colour(ogreColour(skin().mTextColour));
 		}
