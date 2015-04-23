@@ -33,15 +33,13 @@
 
 #include <OgreId.h>
 
-#ifdef GORILLA_V20
+#if defined(GORILLA_V20) || defined(GORILLA_V21)
 #include <Compositor/OgreCompositorManager2.h>
 #include <Compositor/OgreCompositorWorkspace.h>
 #endif
 
 #ifdef GORILLA_V21
 #include <OgreHlmsDatablock.h>
-#include <Compositor/OgreCompositorManager2.h>
-#include <Compositor/OgreCompositorWorkspace.h>
 #include <Compositor/OgreCompositorWorkspaceDef.h>
 #include <Compositor/OgreCompositorNodeDef.h>
 #include <Compositor/Pass/OgreCompositorPass.h>
@@ -867,7 +865,7 @@ namespace Gorilla
 	Screen* Silverback::createScreen(Ogre::SceneManager* sceneMgr, Ogre::RenderTarget* viewport, TextureAtlas* atlas)
 	{
 		Screen* screen = OGRE_NEW Screen(sceneMgr, viewport, atlas);
-#ifdef GORILLA_V20
+#if defined(GORILLA_V20) || defined(GORILLA_V21)
 		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
 		Ogre::CompositorWorkspace* workspace = compositorManager->addWorkspace(sceneMgr, viewport, sceneMgr->getCameras().at(0), "Gorilla Workspace", true);
 		workspace->getDefaultCamera()->setUserAny(Ogre::Any(screen));

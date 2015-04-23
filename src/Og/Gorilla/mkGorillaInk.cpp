@@ -15,45 +15,52 @@
 
 #include <OgreColourValue.h>
 
-#include <Ui/Scheme/mkWDropdown.h>
-
 #include <iostream>
+
+#include <Ui/Widget/mkSheet.h>
 
 namespace mk
 {
-	GorillaImage::GorillaImage(GorillaInk* inkbox)
+	GorillaImage::GorillaImage(GorillaInk& inkbox)
 		: mInkbox(inkbox)
-		, mFrame(inkbox->frame())
+		, mFrame(inkbox.frame())
 		, mRects(9)
 	{
-		this->show();
+		//this->show();
 	}
 	
 	GorillaImage::~GorillaImage()
-	{}
+	{
+		if(mRects[0])
+			this->hide();
+	}
 
 	void GorillaImage::prepare()
 	{
-		ImageSkin& skin = mFrame->inkstyle()->mImageSkin;
+		ImageSkin& skin = mFrame.inkstyle().imageSkin();
 
-		GorillaAtlas* gorillaAtlas = mInkbox->frame()->widget()->uiWindow()->inkWindow()->as<GorillaWindow>()->gorillaAtlas();
-		Gorilla::Sprite* sprite = mInkbox->layer()->layer()->_getSprite(skin.d_image);
+		if(skin.d_prepared)
+			return;
 
-		float left = sprite->uvLeft * gorillaAtlas->width();
-		float top = sprite->uvTop * gorillaAtlas->height();
+		GorillaAtlas& gorillaAtlas = mInkbox.frame().widget().uiWindow().inkWindow().as<GorillaWindow>().gorillaAtlas();
+		Gorilla::Sprite& sprite = *mInkbox.layer().layer()._getSprite(skin.d_image + ".png");
+
+		float left = sprite.uvLeft * gorillaAtlas.width();
+		float top = sprite.uvTop * gorillaAtlas.height();
+
+		skin.prepare(sprite.spriteWidth, sprite.spriteHeight);
 
 		for(size_t i = 0; i < 9; ++i)
-			gorillaAtlas->defineSprite(skin.d_images[i], left + skin.d_coords[i].x(), top + skin.d_coords[i].y(), skin.d_coords[i].z(), skin.d_coords[i].w());
+			gorillaAtlas.defineSprite(skin.d_images[i] + ".png", left + skin.d_coords[i].x0(), top + skin.d_coords[i].y0(), skin.d_coords[i].x1(), skin.d_coords[i].y1());
 
 		skin.d_prepared = true;
 	}
 
 	void GorillaImage::show()
 	{
-		ImageSkin& skin = mFrame->inkstyle()->mImageSkin;
+		const ImageSkin& skin = mFrame.inkstyle().mImageSkin;
 
-		if(!skin.d_prepared)
-			this->prepare();
+		this->prepare();
 
 		for(size_t i = 0; i < 9; ++i)
 			mRects[i] = createImage(skin.d_images[i]);
@@ -63,62 +70,49 @@ namespace mk
 	{
 		for(size_t i = 0; i < 9; ++i)
 		{	
-			mInkbox->layer()->layer()->destroyRectangle(mRects[i]);
+			mInkbox.layer().layer().destroyRectangle(mRects[i]);
 			mRects[i] = nullptr;
 		}
 	}
 
 	Gorilla::Rectangle* GorillaImage::createImage(const string& image)
 	{
-		GorillaLayer* layer = mInkbox->layer();
-		Gorilla::Sprite* sprite = layer->layer()->_getSprite(image);
-		float width = sprite->spriteWidth;
-		float height = sprite->spriteHeight;
+		GorillaLayer& layer = mInkbox.layer();
+		Gorilla::Sprite& sprite = *layer.layer()._getSprite(image + ".png");
+		float width = sprite.spriteWidth;
+		float height = sprite.spriteHeight;
 
-		Gorilla::Rectangle* rect = mInkbox->createRectangle(mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), width, height);
-		rect->background_image(image);
+		Gorilla::Rectangle* rect = mInkbox.createRectangle(mFrame.dabsolute(DIM_X), mFrame.dabsolute(DIM_Y), width, height);
+		rect->background_image(image + ".png");
 
 		return rect;
 	}
 
 	void GorillaImage::updateImage()
 	{
-		ImageSkin& skin = mFrame->inkstyle()->mImageSkin;
+		const ImageSkin& skin = mFrame.inkstyle().mImageSkin;
 
-		if(!skin.d_prepared)
-			this->prepare();
+		this->prepare();
 
 		for(size_t i = 0; i < 9; ++i)
-			mRects[i]->background_image(skin.d_images[i]);
+			mRects[i]->background_image(skin.d_images[i] + ".png");
 	}
 
 	void GorillaImage::updateFrame()
 	{
-		FrameSkin fskin(mFrame, &mFrame->inkstyle()->mImageSkin);
+		float width = mFrame.cwidth();
+		float height = mFrame.cheight();
+		float left = mFrame.dabsolute(DIM_X);
+		float top = mFrame.dabsolute(DIM_Y);
 
-		// Borders
-		mRects[ImageSkin::TOP]->position(fskin.d_inleft, fskin.d_top);
-		mRects[ImageSkin::TOP]->width(fskin.d_inwidth);
-
-		mRects[ImageSkin::RIGHT]->position(fskin.d_inright, fskin.d_intop);
-		mRects[ImageSkin::RIGHT]->height(fskin.d_inheight);
-
-		mRects[ImageSkin::BOTTOM]->position(fskin.d_inleft, fskin.d_inbottom);
-		mRects[ImageSkin::BOTTOM]->width(fskin.d_inwidth);
-
-		mRects[ImageSkin::LEFT]->position(fskin.d_left, fskin.d_intop);
-		mRects[ImageSkin::LEFT]->height(fskin.d_inheight);
-
-		// Corners
-		mRects[ImageSkin::TOP_LEFT]->position(fskin.d_outleft, fskin.d_outtop);
-		mRects[ImageSkin::TOP_RIGHT]->position(fskin.d_inright, fskin.d_outtop);
-		mRects[ImageSkin::BOTTOM_RIGHT]->position(fskin.d_inright, fskin.d_inbottom);
-		mRects[ImageSkin::BOTTOM_LEFT]->position(fskin.d_outleft, fskin.d_inbottom);
-
-		// Fill
-		mRects[ImageSkin::FILL]->position(fskin.d_inleft, fskin.d_intop);
-		mRects[ImageSkin::FILL]->width(fskin.d_inwidth);
-		mRects[ImageSkin::FILL]->height(fskin.d_inheight);
+		const ImageSkin& imgskin = mFrame.inkstyle().mImageSkin;
+		float margin = imgskin.d_margin * 2.f;
+		imgskin.stretchCoords(width + margin, height + margin, [this, left, top, margin](ImageSkin::Section s, int x, int y, int w, int h)
+		{
+			this->mRects[s]->position(left + x - margin * 0.5f, top + y - margin * 0.5f);
+			this->mRects[s]->width(w);
+			this->mRects[s]->height(h);
+		});
 	}
 
 	Ogre::ColourValue ogreColour(const Colour& colour)
@@ -126,14 +120,13 @@ namespace mk
 		return Ogre::ColourValue(colour.r(), colour.g(), colour.b(), colour.a());
 	}
 
-	GorillaInk::GorillaInk(Frame* frame, GorillaLayer* layer)
+	GorillaInk::GorillaInk(Frame& frame, GorillaLayer& layer)
 		: Inkbox(frame)
 		, mLayer(layer)
 		, mRect(nullptr)
 		, mImage(nullptr)
 		, mCaption(nullptr)
 		, mImageSkin(nullptr)
-		, mLastRect(nullptr)
 	{}
 
 	GorillaInk::~GorillaInk()
@@ -144,20 +137,24 @@ namespace mk
 
 	Gorilla::Rectangle* GorillaInk::lastRect()
 	{
-		if(mLastRect)
-			return mLastRect;
-		else if(mFrame->frameType() == LAYER)
+		if(mImageSkin && mImageSkin->lastRect())
+			return mImageSkin->lastRect();
+		else if(mImage)
+			return mImage;
+		else if(mRect)
+			return mRect;
+		else if(mFrame.frameType() == LAYER)
 			return nullptr;
 		
-		Frame* frame = mFrame;
+		Frame* frame = &mFrame;
 		while(frame->index() > 0)
 		{
 			frame = frame->prev();
 			if(frame->frameType() < LAYER)
-				return static_cast<GorillaInk*>(frame->inkbox())->lastRect();
+				return static_cast<GorillaInk&>(frame->inkbox()).lastRect();
 		}
 
-		return static_cast<GorillaInk*>(mFrame->parent()->inkbox())->lastRect();
+		return static_cast<GorillaInk&>(mFrame.parent()->inkbox()).lastRect();
 	}
 
 	Gorilla::Rectangle* GorillaInk::createRectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height)
@@ -167,39 +164,41 @@ namespace mk
 		if(lastRect)
 			index = lastRect->index() + 1;
 
-		mLastRect = mLayer->layer()->insertRectangle(index, left, top, width, height);
-		return mLastRect;
+		return mLayer.layer().insertRectangle(index, left, top, width, height);
 	}
 
 	void GorillaInk::show()
 	{
-		if(!mFrame->inkstyle()->mEmpty)
-			mRect = this->createRectangle(mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), mFrame->dsize(DIM_X), mFrame->dsize(DIM_Y));
+		if(!skin().mEmpty)
+			mRect = this->createRectangle(mFrame.dabsolute(DIM_X), mFrame.dabsolute(DIM_Y), mFrame.dsize(DIM_X), mFrame.dsize(DIM_Y));
 
 		mVisible = true;
 
-		if(mImageSkin)
+		if(mImageSkin && !skin().imageSkin().null())
 			mImageSkin->show();
 
-		this->updateStyle();
 		this->updateContent();
+		this->updateStyle();
 	}
 
 	void GorillaInk::hide()
 	{
+		if(!mVisible)
+			return;
+
 		if(mRect)
 		{
-			mLayer->layer()->destroyRectangle(mRect);
+			mLayer.layer().destroyRectangle(mRect);
 			mRect = nullptr;
 		}
 		if(mImage)
 		{
-			mLayer->layer()->destroyRectangle(mImage);
+			mLayer.layer().destroyRectangle(mImage);
 			mImage = nullptr;
 		}
 		if(mCaption)
 		{
-			mLayer->layer()->destroyCaption(mCaption);
+			mLayer.layer().destroyCaption(mCaption);
 			mCaption = nullptr;
 		}
 		if(mImageSkin)
@@ -207,7 +206,6 @@ namespace mk
 			mImageSkin->hide();
 		}
 
-		mLastRect = nullptr;
 		mVisible = false;
 	}
 
@@ -215,9 +213,9 @@ namespace mk
 	{
 		if(mImage)
 		{
-			Gorilla::Sprite* sprite = mLayer->layer()->_getSprite(mFrame->widget()->image());
-			float xoffset = mFrame->inkstyle()->mPadding[DIM_X] * 2.f;
-			float yoffset = mFrame->inkstyle()->mPadding[DIM_Y] * 2.f;
+			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image() + ".png");
+			float xoffset = skin().padding()[DIM_X] + skin().padding()[DIM_X + 2];
+			float yoffset = skin().padding()[DIM_Y] + skin().padding()[DIM_Y + 2];
 
 			return dim == DIM_X ? sprite->spriteWidth + xoffset: sprite->spriteHeight + yoffset;
 		}
@@ -225,8 +223,8 @@ namespace mk
 		{
 			Ogre::Vector2 size;
 			mCaption->_calculateDrawSize(size);
-			float xoffset = mFrame->inkstyle()->mPadding[DIM_X] * 2.f;
-			float yoffset = mFrame->inkstyle()->mPadding[DIM_Y] * 2.f;
+			float xoffset = skin().padding()[DIM_X] + skin().padding()[DIM_X + 2];
+			float yoffset = skin().padding()[DIM_Y] + skin().padding()[DIM_Y + 2];
 			xoffset += 3.f; // hardcoded tweak because gorilla reports a slightly smaller size than it needs
 
 			return dim == DIM_X ? size.x + xoffset : size.y + yoffset;
@@ -246,8 +244,8 @@ namespace mk
 		{
 			caretY = 0.f;
 			mCaption->_calculateCaretCoords(index, caretX, caretHeight);
-			caretX += mFrame->inkstyle()->mPadding[DIM_X];
-			caretY += mFrame->inkstyle()->mPadding[DIM_Y];
+			caretX += skin().padding()[DIM_X];
+			caretY += skin().padding()[DIM_Y];
 		}
 	}
 
@@ -259,35 +257,50 @@ namespace mk
 
 	void GorillaInk::updateStyle()
 	{
-		if(mFrame->inkstyle()->mEmpty || !mVisible)
+		if(!mVisible) //  || skin().mEmpty
 			return;
 
-		if(mFrame->inkstyle()->mBackgroundColour.a() == 0.f)
-			mRect->no_background();
-		else
-			mRect->background_colour(ogreColour(mFrame->inkstyle()->mBackgroundColour));
+		if(mRect)
+		{
+			if(skin().backgroundColour().a() == 0.f)
+				mRect->no_background();
+			else
+				mRect->background_colour(ogreColour(skin().mBackgroundColour));
 
-		if(mFrame->inkstyle()->mBorderWidth.x())
-			mRect->border(mFrame->inkstyle()->mBorderWidth.x(), ogreColour(mFrame->inkstyle()->mBorderColour));
+			if(skin().borderWidth().x0())
+				mRect->border(skin().borderWidth().x0(), ogreColour(skin().mBorderColour));
+			else
+				mRect->no_border();
+		}
 
-		if(!mFrame->inkstyle()->mImageSkin.null() && !mImageSkin)
-			mImageSkin = make_unique<GorillaImage>(this);
-		else if(!mFrame->inkstyle()->mImageSkin.null() && mImageSkin)
+		if(!skin().imageSkin().null() && !mImageSkin)
+		{
+			mImageSkin = make_unique<GorillaImage>(*this);
+			mImageSkin->show();
+		}
+		else if(!skin().imageSkin().null() && mImageSkin)
 			mImageSkin->updateImage();
+		else if(skin().imageSkin().null() && mImageSkin)
+			mImageSkin.reset();
+
+		this->updateImage();
 
 		// @todo add gradients
 	}
 
 	void GorillaInk::updateFrame()
 	{
-		if(mFrame->inkstyle()->mEmpty || !mVisible || mFrame->dsize(DIM_X) == 0.f || mFrame->dsize(DIM_X) == 0.f)
+		if(&mFrame.style() == &MoveCursor::cls())
+			int i = 0;
+
+		if(skin().mEmpty || !mVisible || mFrame.dsize(DIM_X) == 0.f || mFrame.dsize(DIM_Y) == 0.f)
 			return;
 		
-		float left = mFrame->dabsolute(DIM_X) + mFrame->dclippos(DIM_X) + mFrame->inkstyle()->mMargin[DIM_X] + mFrame->inkstyle()->mBorderWidth.x();
-		float top = mFrame->dabsolute(DIM_Y) + mFrame->dclippos(DIM_Y) + mFrame->inkstyle()->mMargin[DIM_Y] + mFrame->inkstyle()->mBorderWidth.x();
+		float left = mFrame.dabsolute(DIM_X) + mFrame.dclippos(DIM_X) + skin().margin().x0() + skin().borderWidth().x0();
+		float top = mFrame.dabsolute(DIM_Y) + mFrame.dclippos(DIM_Y) + skin().margin().y0() + skin().borderWidth().x0();
 
-		float width = mFrame->dclipsize(DIM_X) - mFrame->inkstyle()->mMargin[DIM_X] - mFrame->inkstyle()->mMargin[DIM_X + 2] - mFrame->inkstyle()->mBorderWidth[DIM_X] - mFrame->inkstyle()->mBorderWidth[DIM_X + 2];
-		float height = mFrame->dclipsize(DIM_Y) - mFrame->inkstyle()->mMargin[DIM_Y] - mFrame->inkstyle()->mMargin[DIM_Y + 2] - mFrame->inkstyle()->mBorderWidth[DIM_Y] - mFrame->inkstyle()->mBorderWidth[DIM_Y + 2];
+		float width = mFrame.dclipsize(DIM_X) - skin().margin().x0() - skin().margin().x1() - skin().borderWidth().x0() - skin().borderWidth().x1();
+		float height = mFrame.dclipsize(DIM_Y) - skin().margin().y0() - skin().margin().y1() - skin().borderWidth().y0() - skin().borderWidth().y1();
 
 		mRect->left(left);
 		mRect->top(top);
@@ -297,74 +310,76 @@ namespace mk
 
 		if(mCaption)
 		{
-			mCaption->left(left + mFrame->inkstyle()->mPadding[DIM_X]);
-			mCaption->top(top + mFrame->inkstyle()->mPadding[DIM_Y]);
+			mCaption->left(left + skin().padding()[DIM_X]);
+			mCaption->top(top + skin().padding()[DIM_Y]);
 
-			mCaption->size(width - mFrame->inkstyle()->mPadding[DIM_X] * 2.f, height - mFrame->inkstyle()->mPadding[DIM_Y] * 2.f);
+			mCaption->size(width - skin().padding()[DIM_X] * 2.f, height - skin().padding()[DIM_Y] * 2.f);
 		}
 
 		if(mImage)
 		{
-			mImage->left(left + mFrame->inkstyle()->mPadding[DIM_X]);
-			mImage->top(top + mFrame->inkstyle()->mPadding[DIM_Y]);
-			//mImage->width(width - mFrame->inkstyle()->mPadding[DIM_X] * 2.f);
-			//mImage->height(height - mFrame->inkstyle()->mPadding[DIM_Y] * 2.f);
+			mImage->left(left + skin().padding()[DIM_X]);
+			mImage->top(top + skin().padding()[DIM_Y]);
+			//mImage->width(width - skin().padding()[DIM_X] * 2.f);
+			//mImage->height(height - skin().padding()[DIM_Y] * 2.f);
 		}
 
 		if(mImageSkin)
 			mImageSkin->updateFrame();
 
-		//if(mFrame->style()->name() != "cursor")
-		//	std::cerr << "GorillaInk :: draw " << mFrame->style()->name() << " at " << mRect->left() << " , " << mRect->top() << " size " << mRect->width() << " , " << mRect->height() << std::endl;
+		//if(mFrame.style()->name() != "cursor")
+		//	std::cerr << "GorillaInk :: draw " << mFrame.style()->name() << " at " << mRect->left() << " , " << mRect->top() << " size " << mRect->width() << " , " << mRect->height() << std::endl;
 	}
 
 	void GorillaInk::updateImage()
 	{
-		if(mFrame->inkstyle()->mEmpty || !mVisible)
+		if(skin().mEmpty || !mVisible)
 			return;
 
-		if(mImage && mFrame->widget()->image().empty())
+		if(mImage && mFrame.widget().image().empty())
 		{
-			mLayer->layer()->destroyRectangle(mImage);
+			mLayer.layer().destroyRectangle(mImage);
 			mImage = nullptr;
 			return;
 		}
-		else if(!mImage && !mFrame->widget()->image().empty())
+		else if(!mImage && !mFrame.widget().image().empty())
 		{
-			Gorilla::Sprite* sprite = mLayer->layer()->_getSprite(mFrame->widget()->image());
-			mImage = this->createRectangle(mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), sprite->spriteWidth, sprite->spriteHeight);
+			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image() + ".png");
+			mImage = this->createRectangle(mFrame.dabsolute(DIM_X), mFrame.dabsolute(DIM_Y), sprite->spriteWidth, sprite->spriteHeight);
 		}
-
-		if(!mFrame->widget()->image().empty())
+		if(!mFrame.widget().image().empty())
 		{
-			mImage->background_image(Ogre::String(mFrame->widget()->image()));
+			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image() + ".png");
+			mImage->background_image(Ogre::String(mFrame.widget().image() + ".png"));
+			mImage->width(sprite->spriteWidth);
+			mImage->height(sprite->spriteHeight);
 		}
 	}
 
 	void GorillaInk::updateCaption()
 	{
-		if(mFrame->inkstyle()->mEmpty || !mVisible)
+		if(skin().mEmpty || !mVisible)
 			return;
 
-		if(mCaption && mFrame->widget()->label().empty())
+		if(mCaption && mFrame.widget().label().empty())
 		{
-			mLayer->layer()->destroyCaption(mCaption);
+			mLayer.layer().destroyCaption(mCaption);
 			mCaption = nullptr;
 			return;
 		}
-		else if(!mCaption && !mFrame->widget()->label().empty())
+		else if(!mCaption && !mFrame.widget().label().empty())
 		{
-			mCaption = mLayer->layer()->createCaption(9, mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), mFrame->widget()->label());
+			mCaption = mLayer.layer().createCaption(9, mFrame.dabsolute(DIM_X), mFrame.dabsolute(DIM_Y), mFrame.widget().label());
 		}
 
-		if(!mFrame->widget()->label().empty())
+		if(!mFrame.widget().label().empty())
 		{
-			mCaption->text(mFrame->widget()->label());
-			mCaption->size(mFrame->dsize(DIM_X), mFrame->dsize(DIM_Y));
+			mCaption->text(mFrame.widget().label());
+			mCaption->size(mFrame.dsize(DIM_X), mFrame.dsize(DIM_Y));
 			mCaption->align(Gorilla::TextAlign_Left);
 			mCaption->vertical_align(Gorilla::VerticalAlign_Middle);
 			mCaption->no_background();
-			mCaption->colour(ogreColour(mFrame->inkstyle()->mTextColour));
+			mCaption->colour(ogreColour(skin().mTextColour));
 		}
 	}
 }

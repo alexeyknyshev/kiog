@@ -10,12 +10,10 @@
 #include <Ui/mkUi.h>
 
 #include <Og/mkOgModule.h>
-
 #include <OgreRoot.h>
+#include <OgreManualObject.h>
 
 #include <float.h>
-
-#include <OgreManualObject.h>
 
 namespace mk
 {
@@ -72,7 +70,7 @@ namespace mk
 		return camera;
 	}
 
-	void createOgTestViewport(Form* root)
+	void createOgTestViewport(Sheet& sheet)
 	{
 		Ogre::Camera* camera = prepareOgreScene();
 		Ogre::SceneManager* sceneManager = camera->getParentSceneNode()->getCreator();
@@ -81,71 +79,51 @@ namespace mk
 		cubeNode->setPosition(0.f, 0.f, 0.f);
 		cubeNode->attachObject(createCubeMesh(sceneManager));
 
-		Form* viewport = root->makeappend<Form>(nullptr, "", [root, camera](){ return make_unique<SpaceViewport>(camera); });
+		sheet.emplace<SpaceViewport>(sheet.uiWindow(), camera);
 	}
 
-	void createOgTest3DSheet(Form* root)
+	void createOgTest3DSheet(Sheet& sheet)
 	{
 		Ogre::Camera* camera = prepareOgreScene();
 
-		Form* viewport = root->makeappend<Form>(nullptr, "", [root, camera](){ return make_unique<SpaceViewport>(camera); });
+		SpaceViewport& viewport = sheet.emplace<SpaceViewport>(sheet.uiWindow(), camera);
 
-		SpaceForm* sheet3D = viewport->makeappend<SpaceForm>(viewport->widget()->as<SpaceViewport>());
-		sheet3D->widget()->frame()->setSize(480.f, 350.f);
+		SpaceSheet& sheet3D = viewport.emplace<SpaceSheet>(viewport);
+		sheet3D.frame().setSize(480.f, 350.f);
 
-		Window* window = createUiTestWindow(sheet3D);
-		window->widget()->as<WWindow>()->toggleMovable();
-		//createUiTestMyGuiImageSkin(sheet3D);
+		Window& window = createUiTestWindow(sheet3D);
+		window.toggleMovable();
 	}
 
-	void pickSample(Form* root, const string& name)
+	void pickOgSample(Sheet& sheet, Widget& selected)
 	{
-		root->clear();
+		const string name = selected.label();
+		sheet.clear();
 
 		if(name == "Viewport")
-			createOgTestViewport(root);
+			createOgTestViewport(sheet);
 		else if(name == "3D Sheet")
-			createOgTest3DSheet(root);
-		else if(name == "Dockspace")
-			createUiTestDockspace(root);
-		else if(name == "Window")
-			createUiTestWindow(root);
-		else if(name == "Tabs")
-			createUiTestTabs(root);
-		else if(name == "Table")
-			createUiTestTable(root);
-		else if(name == "Tree")
-			createUiTestTree(root);
-		else if(name == "Controls")
-			createUiTestControls(root);
-		else if(name == "Skinned Window (Cegui)")
-			createUiTestCeguiImageSkin(root);
-		else if(name == "Skinned Window (MyGui)")
-			createUiTestMyGuiImageSkin(root);
-		else if(name == "File Browser")
-			createUiTestFileBrowser(root);
-		else if(name == "File Tree")
-			createUiTestFileTree(root);
-		else if(name == "Progress Dialog")
-			createUiTestProgressDialog(root);
+			createOgTest3DSheet(sheet);
+
+		pickUiSample(sheet, selected);
 	}
 
-	void createOgTestUi(Form* root)
+	void createOgTestUi(Form& root)
 	{
-		WOgViewport::styleCls()->layout()->d_sizing = DimSizing(EXPAND, EXPAND);
-		SpaceViewport::styleCls()->layout()->d_sizing = DimSizing(EXPAND, EXPAND);
-		SpaceViewport::styleCls()->layout()->d_opacity = _OPAQUE;
-		SpaceSheet::styleCls()->layout()->d_sizing = DimSizing(FIXED, FIXED);
-		SpaceSheet::styleCls()->layout()->d_opacity = _OPAQUE;
+		//SpaceViewport::cls().layout().d_opacity = OPAQUE;
+		//SpaceSheet::cls().layout().d_opacity = OPAQUE;
 
-		Form* demoheader = root->makeappend<Header>();
-		Form* demobody = root->makeappend<PartitionX>();
-		demoheader->makeappend<Label>("Pick a demo sample : ");
 #if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
-		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog" });
+		StringVector samples({ "Dockspace", "Window", "Text Editor", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog" });
 #else
-		StringVector samples({ "Dockspace", "Window", "Skinned Window (MyGui)", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog", "Viewport", "3D Sheet" });		
+		StringVector samples({ "Dockspace", "Window", "Text Editor", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog", "Viewport", "3D Sheet" });
 #endif
-		demoheader->makeappend<Dropdown>(std::bind(&pickSample, demobody, std::placeholders::_1), samples);
+
+		Header& demoheader = root.sheet().emplace<Header>();
+		Board& demobody = root.sheet().emplace<Board>();
+		demoheader.emplace<Label>("Pick a demo sample : ");
+		demoheader.emplace<Dropdown>(std::bind(&pickOgSample, std::ref(demobody), std::placeholders::_1), samples);
+		demoheader.emplace<Label>("Switch theme : ");
+		demoheader.emplace<Dropdown>(std::bind(&switchUiTheme, std::ref(demobody), std::placeholders::_1), StringVector({ "Blendish", "Blendish Dark", "TurboBadger", "MyGui", "Photoshop", "Default" }));
 	}
 }

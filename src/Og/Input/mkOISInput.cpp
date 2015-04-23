@@ -37,9 +37,9 @@ namespace mk
         destroyInput();
     }
 
-	void OISInput::initInput(InputDispatcher* dispatcher, size_t windowHnd)
+	void OISInput::initInput(InputDispatcher& dispatcher, size_t windowHnd)
 	{
-		mDispatcher = dispatcher;
+		mDispatcher = &dispatcher;
 		setupInput(windowHnd);
 	}
 

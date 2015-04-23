@@ -29,14 +29,14 @@
 
 namespace mk
 {
-	OgWindow::OgWindow(OgModule* front, const string& name, int width, int height, bool fullScreen, User* user)
+	OgWindow::OgWindow(OgModule& front, const string& name, int width, int height, bool fullScreen, User* user)
 		: mOgModule(front)
-		, mUiWindow(make_unique<UiWindow>(user))
-		, mOgreWindow(front->ogreModule()->createWindow(mUiWindow.get(), name, width, height, fullScreen))
-		, mGorillaWindow(make_unique<GorillaWindow>(mOgreWindow.get()))
+		, mUiWindow(make_unique<UiWindow>(front.ogreModule().resourcePath(), user))
+		, mOgreWindow(front.ogreModule().createWindow(*mUiWindow.get(), name, width, height, fullScreen))
+		, mGorillaWindow(make_unique<GorillaWindow>(*mOgreWindow.get()))
 	{
-		mUiWindow->setup(mOgreWindow.get(), mGorillaWindow.get(), front->input());
-		front->input()->initInput(mUiWindow.get(), mOgreWindow->handle());
+		mUiWindow->setup(*mOgreWindow.get(), *mGorillaWindow.get(), &front.input());
+		front.input().initInput(*mUiWindow.get(), mOgreWindow->handle());
 		mOgreWindow->updateSize();
 	}
 
@@ -117,11 +117,11 @@ namespace mk
 		return pursue;
 	}
 
-	OgWindow* OgModule::createWindow(const string& name, int width, int height, bool fullScreen, User* user)
+	OgWindow& OgModule::createWindow(const string& name, int width, int height, bool fullScreen, User* user)
 	{
-		unique_ptr<OgWindow> window = make_unique<OgWindow>(this, name, width, height, fullScreen, user);
+		unique_ptr<OgWindow> window = make_unique<OgWindow>(*this, name, width, height, fullScreen, user);
 
 		mWindows.emplace_back(std::move(window));
-		return mWindows.back().get();
+		return *mWindows.back().get();
 	}
 }

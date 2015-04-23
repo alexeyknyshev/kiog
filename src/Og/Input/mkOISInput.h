@@ -20,7 +20,7 @@ namespace mk
         OISInput();
         virtual ~OISInput();
 
-		void initInput(InputDispatcher* dispatcher, size_t windowHnd);
+		void initInput(InputDispatcher& dispatcher, size_t windowHnd);
 		void setupInput(size_t windowHnd);
 		void destroyInput();
 

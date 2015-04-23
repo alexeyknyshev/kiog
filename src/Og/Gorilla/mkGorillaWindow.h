@@ -21,15 +21,17 @@ namespace mk
 {
 	struct ImageRect : public BPRect
 	{
+		string group;
+		string subfolder;
 		string image;
 	};
 
 	class MK_OG_EXPORT GorillaAtlas
 	{
 	public:
-		GorillaAtlas(Gorilla::Silverback* silverback, string name, size_t width, size_t height, string path, string spriteGroup);
+		GorillaAtlas(Gorilla::Silverback& silverback, string name, size_t width, size_t height, string path);
 
-		Gorilla::TextureAtlas* atlas() { return mAtlas; }
+		Gorilla::TextureAtlas& atlas() { return *mAtlas; }
 		size_t width() { return mWidth; }
 		size_t height() { return mHeight; }
 
@@ -41,20 +43,19 @@ namespace mk
 		void fitImage(ImageRect& image);
 		void blitImage(Ogre::TexturePtr texture, ImageRect& image);
 
-		void appendSprite(string image);
-		void defineSprite(string image, float left, float top, float width, float height);
+		void appendSprite(const string& image, const string& group);
+		void defineSprite(const string& image, float left, float top, float width, float height);
 
 		std::vector<ImageRect>& fonts() { return mFonts; }
 		std::vector<ImageRect>& sprites() { return mSprites; }
 
 	protected:
-		Gorilla::Silverback* mSilverback;
+		Gorilla::Silverback& mSilverback;
 		Gorilla::TextureAtlas* mAtlas;
 		string mName;
 		size_t mWidth;
 		size_t mHeight;
 		string mPath;
-		string mSpriteGroup;
 		GuillotineBinPack mRectPacker;
 		std::vector<ImageRect> mFonts;
 		std::vector<ImageRect> mSprites;
@@ -65,74 +66,73 @@ namespace mk
 	class MK_OG_EXPORT GorillaLayer : public InkLayer
 	{
 	public:
-		GorillaLayer(GorillaTarget* target, Gorilla::Layer* layer);
+		GorillaLayer(GorillaTarget& target, Gorilla::Layer& layer, size_t index);
 		~GorillaLayer();
 
-		Gorilla::Layer* layer() { return mLayer; }
+		Gorilla::Layer& layer() { return mLayer; }
 
-		unique_ptr<Inkbox> inkbox(Frame* frame);
+		void moved(size_t index);
+		unique_ptr<Inkbox> createInkbox(Frame& frame);
 
 		void show();
 		void hide();
 
-		void moveToTop();
-
 	protected:
-		GorillaTarget* mTarget;
-		Gorilla::Layer* mLayer;
+		GorillaTarget& mTarget;
+		Gorilla::Layer& mLayer;
 	};
 
 	class MK_OG_EXPORT GorillaTarget : public InkTarget
 	{
 	public:
-		GorillaTarget(Gorilla::LayerContainer* screen);
+		GorillaTarget(Gorilla::LayerContainer& screen);
 
-		Gorilla::LayerContainer* screen() { return mScreen; }
+		Gorilla::LayerContainer& screen() { return mScreen; }
 		size_t zmax() { return mZMax; }
 
-		unique_ptr<InkLayer> layer(Frame* frame, size_t z);
+		unique_ptr<InkLayer> createLayer(Frame& frame, size_t z);
 
 	protected:
-		Gorilla::LayerContainer* mScreen;
+		Gorilla::LayerContainer& mScreen;
 		size_t mZMax;
 	};
 
 	class MK_OG_EXPORT GorillaSpaceTarget : public GorillaTarget
 	{
 	public:
-		GorillaSpaceTarget(Gorilla::ScreenRenderable* spaceScreen);
+		GorillaSpaceTarget(Gorilla::ScreenRenderable& spaceScreen);
 		~GorillaSpaceTarget();
 
-		Gorilla::ScreenRenderable* spaceScreen() { return mSpaceScreen; }
-		Gorilla::Layer* layer() { return mLayer->layer(); }
+		Gorilla::ScreenRenderable& spaceScreen() { return mSpaceScreen; }
+		Gorilla::Layer& layer() { return mLayer->layer(); }
 
 		void redraw();
 
 	protected:
-		Gorilla::ScreenRenderable* mSpaceScreen;
+		Gorilla::ScreenRenderable& mSpaceScreen;
 		unique_ptr<GorillaLayer> mLayer;
 	};
 
 	class MK_OG_EXPORT GorillaWindow : public InkWindow
 	{
 	public:
-		GorillaWindow(OgreWindow* ogreWindow);
+		GorillaWindow(OgreWindow& ogreWindow);
 		~GorillaWindow();
 
-		GorillaTarget* gorillaScreenTarget() { return mScreenTarget.get(); }
-		GorillaAtlas* gorillaAtlas() { return mAtlas.get(); }
+		GorillaTarget& gorillaScreenTarget() { return *mScreenTarget.get(); }
+		GorillaAtlas& gorillaAtlas() { return *mAtlas.get(); }
 
 		void nextFrame();
 
-		InkTarget* screenTarget();
-		InkTarget* spaceTarget(Ogre::SceneManager* sceneMgr, int width, int height);
-		void releaseTarget(InkTarget* target);
+		InkTarget& screenTarget();
+		InkTarget& spaceTarget(Ogre::SceneManager* sceneMgr, int width, int height);
+		void releaseTarget(InkTarget& target);
 
 		const std::vector<unique_ptr<GorillaSpaceTarget>>& spaceTargets() { return mSpaceTargets; }
 
 	protected:
-		Ogre::SceneManager* mSceneManager;
-		Ogre::Camera* mCamera;
+		Ogre::SceneManager& mSceneManager;
+		Ogre::Camera& mCamera;
 		size_t mAtlasWidth;
 		size_t mAtlasHeight;
 

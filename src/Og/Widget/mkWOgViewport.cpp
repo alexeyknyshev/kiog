@@ -30,23 +30,21 @@
 
 namespace mk
 {
-	WOgViewport::WOgViewport(Form* form, Ogre::Camera* camera, MOC::CollisionTools* collisionTools)
-		: Sheet(styleCls(), form)
+	WOgViewport::WOgViewport(UiWindow& uiWindow, Ogre::Camera* camera, MOC::CollisionTools* collisionTools)
+		: Sheet()
 		, OgViewport(camera, collisionTools)
 		, mRenderTexture(nullptr)
 		, mBlank(true)
-	{}
+		, mOgreWindow(static_cast<OgreWindow&>(uiWindow.renderWindow()))
+		, mGorillaWindow(static_cast<GorillaWindow&>(uiWindow.inkWindow()))
+		, mRenderWindow(mOgreWindow.context())
+		, mRoot(mOgreWindow.ogreModule().ogreRoot())
+	{
+
+	}
 
 	WOgViewport::~WOgViewport()
 	{}
-
-	void WOgViewport::build()
-	{
-		mOgreWindow = static_cast<OgreWindow*>(this->uiWindow()->renderWindow());
-		mGorillaWindow = static_cast<GorillaWindow*>(this->uiWindow()->inkWindow());
-		mRenderWindow = mOgreWindow->context();
-		mRoot = mOgreWindow->ogreModule()->ogreRoot();
-	}
 
 	void WOgViewport::initViewport()
 	{
@@ -68,7 +66,7 @@ namespace mk
 
 		this->initTexture();
 
-		mGorillaViewport = static_cast<Gorilla::Screen*>(mGorillaWindow->gorillaScreenTarget()->screen())->addViewport(mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), mFrame->dsize(DIM_X), mFrame->dsize(DIM_Y), mMaterial);
+		mGorillaViewport = static_cast<Gorilla::Screen&>(mGorillaWindow.gorillaScreenTarget().screen()).addViewport(mFrame->dabsolute(DIM_X), mFrame->dabsolute(DIM_Y), mFrame->dsize(DIM_X), mFrame->dsize(DIM_Y), mMaterial);
 
 		OgViewport::resize();
 
@@ -78,7 +76,7 @@ namespace mk
 
 	void WOgViewport::initTexture()
 	{
-		mTexture = mRoot->getTextureManager()->createManual(mMaterialName,
+		mTexture = mRoot.getTextureManager()->createManual(mMaterialName,
 			Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 			Ogre::TEX_TYPE_2D,
 			size_t(mWidth),
@@ -91,7 +89,7 @@ namespace mk
 
 		mMaterial->getTechnique(0)->getPass(0)->getTextureUnitState(0)->setTexture(mTexture);
 
-		mWorkspace = mRoot->getCompositorManager2()->addWorkspace(mSceneManager, mRenderTexture, mCamera, "Basic Workspace", true);
+		mWorkspace = mRoot.getCompositorManager2()->addWorkspace(mSceneManager, mRenderTexture, mCamera, "Basic Workspace", true);
 	}
 
 	void WOgViewport::resizeTexture()
@@ -157,7 +155,7 @@ namespace mk
 		y -= mFrame->dabsolute(DIM_Y);
 
 		Object* object = this->pickObject(x, y, SELECTABLE_OGRE_MASK);
-		leftPicked(object, this->uiWindow()->shiftPressed(), x, y);
+		leftPicked(object, this->uiWindow().shiftPressed(), x, y);
 		return true;
 	}
 
@@ -167,7 +165,7 @@ namespace mk
 		y -= mFrame->dabsolute(DIM_Y);
 
 		Object* object = this->pickObject(x, y, SELECTABLE_OGRE_MASK | WORLDPAGE_OGRE_MASK);
-		rightPicked(object, this->uiWindow()->shiftPressed(), x, y);
+		rightPicked(object, this->uiWindow().shiftPressed(), x, y);
 		return true;
 	}
 }

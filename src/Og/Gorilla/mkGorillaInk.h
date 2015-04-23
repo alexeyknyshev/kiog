@@ -15,8 +15,10 @@ namespace mk
 	class GorillaImage
 	{
 	public:
-		GorillaImage(GorillaInk* inkbox);
+		GorillaImage(GorillaInk& inkbox);
 		~GorillaImage();
+
+		Gorilla::Rectangle* lastRect() { for(int i = 8; i >= 0; --i) if(mRects[i]) return mRects[i]; return nullptr; }
 
 		void prepare();
 
@@ -29,18 +31,18 @@ namespace mk
 		Gorilla::Rectangle* createImage(const string& image);
 
 	protected:
-		GorillaInk* mInkbox;
-		Frame* mFrame;
+		GorillaInk& mInkbox;
+		Frame& mFrame;
 		std::vector<Gorilla::Rectangle*> mRects;
 	};
 
 	class GorillaInk : public Inkbox
 	{
 	public:
-		GorillaInk(Frame* frame, GorillaLayer* layer);
+		GorillaInk(Frame& frame, GorillaLayer& layer);
 		~GorillaInk();
     
-		GorillaLayer* layer() { return mLayer; }
+		GorillaLayer& layer() { return mLayer; }
 
 		void updateContent();
 		void updateFrame();
@@ -62,11 +64,10 @@ namespace mk
 		Gorilla::Rectangle* createRectangle(Ogre::Real left, Ogre::Real top, Ogre::Real width, Ogre::Real height);
 
 	protected:
-		GorillaLayer* mLayer;
+		GorillaLayer& mLayer;
 		Gorilla::Rectangle* mRect;
 		Gorilla::Rectangle* mImage; // Optional
 		Gorilla::Caption* mCaption; // Optional
-		Gorilla::Rectangle* mLastRect; // Pointer to last created rect
 		unique_ptr<GorillaImage> mImageSkin;
 	};
 

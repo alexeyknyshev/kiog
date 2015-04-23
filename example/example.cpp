@@ -12,16 +12,16 @@
 
 int main(int argc, char *argv[])
 {
-	std::unique_ptr<mk::OgModule> ogModule = mk::make_unique<mk::OgModule>();
-	ogModule->initAuto();
+	mk::OgModule ogModule("plugins.cfg", "../../Data/");
+	ogModule.initAuto();
 
-	mk::OgWindow* ogWindow = ogModule->createWindow("kiog v0.1", 1200, 800, false);
+	mk::OgWindow& ogWindow = ogModule.createWindow("kiog v0.1", 1200, 800, false);
+	ogWindow.uiWindow().init();
 
-	mk::UiWindow* uiwindow = ogWindow->uiWindow();
-	mk::Form* root = uiwindow->rootForm();
+	mk::Form& root = ogWindow.uiWindow().rootForm();
 	createOgTestUi(root);
 
 	bool pursue = true;
 	while(pursue)
-		pursue = ogModule->nextFrame();
+		pursue = ogModule.nextFrame();
 }

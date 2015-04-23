@@ -28,28 +28,30 @@
 
 namespace mk
 {
-	OgreWindow::OgreWindow(OgreModule* module, UiWindow* window, Ogre::RenderWindow* context)
-		: RenderWindow(context->getWidth(), context->getHeight(), context->getName(), 0)
+	OgreWindow::OgreWindow(OgreModule& module, UiWindow& window, Ogre::RenderWindow& context)
+		: RenderWindow(context.getWidth(), context.getHeight(), context.getName(), 0)
 		, mModule(module)
 		, mWindow(window)
 		, mContext(context)
 	{
-		Ogre::WindowEventUtilities::addWindowEventListener(mContext, this);
+		Ogre::WindowEventUtilities::addWindowEventListener(&mContext, this);
 
-		mContext->getCustomAttribute("WINDOW", &mHandle);
+		mContext.getCustomAttribute("WINDOW", &mHandle);
 	}
 
 	OgreWindow::~OgreWindow()
 	{
-		Ogre::WindowEventUtilities::removeWindowEventListener(mContext, this);
+		Ogre::WindowEventUtilities::removeWindowEventListener(&mContext, this);
+
+		mModule.ogreRoot().destroyRenderTarget(&mContext);
 	}
 
 	void OgreWindow::updateSize()
 	{
 		unsigned int depth;
 		int left, top;
-		mContext->getMetrics(mWidth, mHeight, depth, left, top);
-		mWindow->resize(mWidth, mHeight);
+		mContext.getMetrics(mWidth, mHeight, depth, left, top);
+		mWindow.resize(mWidth, mHeight);
 	}
 
 	void OgreWindow::windowResized(Ogre::RenderWindow* renderWindow)
@@ -60,7 +62,7 @@ namespace mk
 	void OgreWindow::windowFocusChange(Ogre::RenderWindow* renderWindow)
 	{
 		mActive = !mActive;
-		mModule->focusChange();
+		mModule.focusChange();
 		//std::cerr << "Window focus change : " << renderWindow->isActive() << " , " << renderWindow->isVisible() << std::endl;
 		//std::cerr << "Now set to : " << mActive << std::endl;
 	}
@@ -74,16 +76,12 @@ namespace mk
 
 
  	OgreModule::OgreModule(const string& pluginsPath, const string& resourcePath)
-		: mOgreRoot(new/*front*/Ogre::Root(pluginsPath, resourcePath + "ogre.cfg", resourcePath + "ogre.log"))
+		: mOgreRoot(pluginsPath, resourcePath + "ogre.cfg", resourcePath + "ogre.log")
 		, mResourcePath(resourcePath)
 	{}
 
 	OgreModule::~OgreModule()
-	{
-		if(mOgreRoot)
-			mOgreRoot->shutdown();
-		delete mOgreRoot;
-	}
+	{}
 
 	void OgreModule::initStart()
 	{
@@ -92,8 +90,8 @@ namespace mk
 
 	void OgreModule::configPrompt()
 	{
-		mOgreRoot->showConfigDialog();
-		mOgreRoot->initialise(false);
+		mOgreRoot.showConfigDialog();
+		mOgreRoot.initialise(false);
 		//mOgreRoot->initialise();
 
 		this->setupHiddenWindow();
@@ -108,16 +106,16 @@ namespace mk
 #endif
 
 		// initialize without creating window
-		mOgreRoot->getRenderSystem()->setConfigOption("Full Screen", "No");
-		mOgreRoot->saveConfig();
-		mOgreRoot->initialise(false);
+		mOgreRoot.getRenderSystem()->setConfigOption("Full Screen", "No");
+		mOgreRoot.saveConfig();
+		mOgreRoot.initialise(false);
 
 		this->setupHiddenWindow();
 	}
 
 	void OgreModule::initEnd()
 	{
-		Ogre::CompositorManager2* compositorManager = mOgreRoot->getCompositorManager2();
+		Ogre::CompositorManager2* compositorManager = mOgreRoot.getCompositorManager2();
 		compositorManager->createBasicWorkspaceDef("Basic Workspace", Ogre::ColourValue(0.15f, 0.15f, 0.15f));
 		compositorManager->createBasicWorkspaceDef("Black Workspace", Ogre::ColourValue::Black);
 
@@ -137,7 +135,7 @@ namespace mk
 
 	void OgreModule::multiViewportWorkspace(const std::vector<OgViewport*>& viewports, Ogre::RenderTarget* target)
 	{
-		Ogre::CompositorManager2* compositorManager = mOgreRoot->getCompositorManager2();
+		Ogre::CompositorManager2* compositorManager = mOgreRoot.getCompositorManager2();
 		Ogre::CompositorNodeDef* nodeDef = compositorManager->addNodeDefinition("AutoGen " + (Ogre::IdString("MultiViewportWorkspace") + Ogre::IdString("/Node")).getReleaseText());
 
 		//Input texture
@@ -182,32 +180,32 @@ namespace mk
 		Ogre::NameValuePairList params;
 		params["hidden"] = "true";
 
-		Ogre::RenderWindow* window = mOgreRoot->createRenderWindow("mkHidden", 1, 1, false, &params);
+		Ogre::RenderWindow* window = mOgreRoot.createRenderWindow("mkHidden", 1, 1, false, &params);
 	}
 
 	void OgreModule::setupFirstRenderer()
 	{
-		mOgreRoot->setRenderSystem(mOgreRoot->getAvailableRenderers().at(0));
+		mOgreRoot.setRenderSystem(mOgreRoot.getAvailableRenderers().at(0));
 	}
 
 	void OgreModule::setupRenderer(const string& name)
 	{
-		for(auto renderer : mOgreRoot->getAvailableRenderers())
+		for(auto renderer : mOgreRoot.getAvailableRenderers())
 			if(renderer->getName() == name)
 			{
-				mOgreRoot->setRenderSystem(renderer);
+				mOgreRoot.setRenderSystem(renderer);
 				return;
 			}
 
 		this->setupFirstRenderer();
 	}
 
-	unique_ptr<OgreWindow> OgreModule::createWindow(UiWindow* window, const string& name, int width, int height, bool fullScreen)
+	unique_ptr<OgreWindow> OgreModule::createWindow(UiWindow& window, const string& name, int width, int height, bool fullScreen)
 	{
 		Ogre::NameValuePairList params;
 		params["border"] = "none";
 
-		return make_unique<OgreWindow>(this, window, mOgreRoot->createRenderWindow(name, width, height, fullScreen, &params));
+		return make_unique<OgreWindow>(*this, window, *mOgreRoot.createRenderWindow(name, width, height, fullScreen, &params));
 	}
 
 	void OgreModule::nextFrame()
@@ -215,9 +213,9 @@ namespace mk
         Ogre::WindowEventUtilities::messagePump();
 
 		if(mContextActive)
-			mOgreRoot->renderOneFrame();
+			mOgreRoot.renderOneFrame();
 		else
-			mOgreRoot->clearEventTimes();
+			mOgreRoot.clearEventTimes();
 	}
 
 	void OgreModule::loadResources()
