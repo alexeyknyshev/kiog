@@ -26,7 +26,7 @@ find_package(Ogre 2.0 REQUIRED)
 find_package(OIS REQUIRED)
 find_package(kiui REQUIRED)
 
-add_definitions(-DKIOG_EXAMPLE_RESSOURCE_PATH="${CMAKE_INSTALL_PREFIX}/data")
+add_definitions(-DKIOG_EXAMPLE_RESSOURCE_PATH="${CMAKE_INSTALL_PREFIX}/data/")
 		
 add_subdirectory(src)
 
