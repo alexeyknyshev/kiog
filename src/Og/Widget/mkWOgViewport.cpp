@@ -40,7 +40,7 @@ namespace mk
 		, mRenderWindow(mOgreWindow.context())
 		, mRoot(mOgreWindow.ogreModule().ogreRoot())
 	{
-
+		mStyle = &cls();
 	}
 
 	WOgViewport::~WOgViewport()

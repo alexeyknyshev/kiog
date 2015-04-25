@@ -35,7 +35,7 @@ namespace mk
 		virtual void leftPicked(Object* object, bool shift, float x, float y) = 0;
 		virtual void rightPicked(Object* object, bool shift, float x, float y) = 0;
 		
-		static StyleType& cls() { static StyleType ty(Sheet::cls()); return ty; }
+		static StyleType& cls() { static StyleType ty("WOgViewport", Sheet::cls()); return ty; }
 
 	protected:
 		OgreWindow& mOgreWindow;

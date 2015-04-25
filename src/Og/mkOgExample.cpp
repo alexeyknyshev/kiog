@@ -72,6 +72,8 @@ namespace mk
 
 	void createOgTestViewport(Sheet& sheet)
 	{
+		SpaceViewport::cls().layout().d_space = BOARD;
+
 		Ogre::Camera* camera = prepareOgreScene();
 		Ogre::SceneManager* sceneManager = camera->getParentSceneNode()->getCreator();
 
@@ -84,6 +86,12 @@ namespace mk
 
 	void createOgTest3DSheet(Sheet& sheet)
 	{
+		SpaceViewport::cls().layout().d_space = BOARD;
+		SpaceViewport::cls().layout().d_opacity = static_cast<Opacity>(0); // OPAQUE
+		SpaceSheet::cls().layout().d_opacity = static_cast<Opacity>(0); // OPAQUE
+		SpaceSheet::cls().layout().d_flow = MANUAL;
+		SpaceSheet::cls().layout().d_size = DimFloat(600.f, 450.f);
+
 		Ogre::Camera* camera = prepareOgreScene();
 
 		SpaceViewport& viewport = sheet.emplace<SpaceViewport>(sheet.uiWindow(), camera);
@@ -97,27 +105,23 @@ namespace mk
 
 	void pickOgSample(Sheet& sheet, Widget& selected)
 	{
+		pickUiSample(sheet, selected);
+
 		const string name = selected.label();
-		sheet.clear();
 
 		if(name == "Viewport")
 			createOgTestViewport(sheet);
 		else if(name == "3D Sheet")
 			createOgTest3DSheet(sheet);
-
-		pickUiSample(sheet, selected);
 	}
 
 	void createOgTestUi(Form& root)
 	{
-		//SpaceViewport::cls().layout().d_opacity = OPAQUE;
-		//SpaceSheet::cls().layout().d_opacity = OPAQUE;
-
-#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
-		StringVector samples({ "Dockspace", "Window", "Text Editor", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog" });
-#else
+//#if OGRE_VERSION_MAJOR == 2 && OGRE_VERSION_MINOR > 0
+//		StringVector samples({ "Dockspace", "Window", "Text Editor", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog" });
+//#else
 		StringVector samples({ "Dockspace", "Window", "Text Editor", "Tabs", "Table", "Tree", "Controls", "File Browser", "File Tree", "Progress Dialog", "Viewport", "3D Sheet" });
-#endif
+//#endif
 
 		Header& demoheader = root.sheet().emplace<Header>();
 		Board& demobody = root.sheet().emplace<Board>();

@@ -36,7 +36,7 @@ namespace mk
 
 		Widget* pinpoint(float x, float y, bool modal = false);
 
-		static StyleType& cls() { static StyleType ty(RootSheet::cls()); return ty; }
+		static StyleType& cls() { static StyleType ty("SpaceSheet", RootSheet::cls()); return ty; }
 
 	private:
 		SpaceViewport& mViewport;

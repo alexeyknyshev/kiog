@@ -782,17 +782,13 @@ namespace Gorilla
 
 	Silverback::Silverback()
 	{
-#ifndef GORILLA_V21
 		Ogre::Root::getSingletonPtr()->addFrameListener(this);
-#endif
 
 #ifdef GORILLA_V20
 		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
 		compositorManager->createBasicWorkspaceDef("Gorilla Workspace", Ogre::ColourValue::Black);
 #endif
 #ifdef GORILLA_V21
-		Ogre::Root::getSingletonPtr()->addFrameListener(this);
-
 		Ogre::CompositorManager2* compositorManager = Ogre::Root::getSingletonPtr()->getCompositorManager2();
 		compositorManager->setCompositorPassProvider(&mPassProvider);
 

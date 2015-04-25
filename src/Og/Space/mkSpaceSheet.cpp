@@ -52,7 +52,7 @@ namespace mk
 	{
 		mStyle = &cls();
 
-		mFrame = make_unique<Layer>(*this, 0, &mTarget);
+		mFrame = make_unique<Layer3D>(*this, 0, &mTarget);
 		
 		mOgreCamera = mViewport.ogreCamera();
 		mSceneNode = mTarget.spaceScreen().getParentSceneNode();
