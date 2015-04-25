@@ -13,13 +13,11 @@
 
 namespace mk
 {
-	class MK_OG_EXPORT _I_ WOgViewport : public Sheet, public OgViewport, public Typed<WOgViewport>, public Styled<WOgViewport>
+	class MK_OG_EXPORT _I_ WOgViewport : public Sheet, public OgViewport
 	{
 	public:
-		WOgViewport(Form* form, Ogre::Camera* camera, MOC::CollisionTools* collisionTools = nullptr);
+		WOgViewport(UiWindow& uiWindow, Ogre::Camera* camera, MOC::CollisionTools* collisionTools = nullptr);
 		~WOgViewport();
-
-		void build();
 
 		void resize();
 
@@ -37,15 +35,16 @@ namespace mk
 		virtual void leftPicked(Object* object, bool shift, float x, float y) = 0;
 		virtual void rightPicked(Object* object, bool shift, float x, float y) = 0;
 		
-		using Typed<WOgViewport>::cls;
+		static StyleType& cls() { static StyleType ty("WOgViewport", Sheet::cls()); return ty; }
 
 	protected:
-		OgreWindow* mOgreWindow;
-		GorillaWindow* mGorillaWindow;
+		OgreWindow& mOgreWindow;
+		GorillaWindow& mGorillaWindow;
 
 		string mMaterialName;
-		Ogre::RenderWindow* mRenderWindow;
-		Ogre::Root* mRoot;
+		Ogre::RenderWindow& mRenderWindow;
+		Ogre::Root& mRoot;
+
 		Ogre::TexturePtr mTexture;
 		Ogre::RenderTexture* mRenderTexture;
 		Ogre::MaterialPtr mMaterial;

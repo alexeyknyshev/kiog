@@ -16,20 +16,17 @@ namespace Ogre
 
 namespace mk
 {
-	class MK_OG_EXPORT SpaceSheet : public RootSheet, public Typed<SpaceSheet>, public Styled<SpaceSheet>
+	class MK_OG_EXPORT SpaceSheet : public RootSheet
 	{
 	public:
-		SpaceSheet(SpaceViewport* viewport, Form* form);
+		SpaceSheet(SpaceViewport& viewport);
 		~SpaceSheet();
 
-		void build();
-
 		FrameType frameType() { return LAYER3D; }
-		InkTarget* inkTarget() { return mTarget; }
 
 		void nextFrame(size_t tick, size_t delta);
 
-		GorillaSpaceTarget* spaceTarget() { return mTarget; }
+		GorillaSpaceTarget& spaceTarget() { return mTarget; }
 
 		void updateSize();
 
@@ -39,12 +36,11 @@ namespace mk
 
 		Widget* pinpoint(float x, float y, bool modal = false);
 
-		using Typed<SpaceSheet>::cls;
-		using Styled<SpaceSheet>::styleCls;
+		static StyleType& cls() { static StyleType ty("SpaceSheet", RootSheet::cls()); return ty; }
 
 	private:
-		SpaceViewport* mViewport;
-		GorillaSpaceTarget* mTarget;
+		SpaceViewport& mViewport;
+		GorillaSpaceTarget& mTarget;
 		Ogre::Camera* mOgreCamera;
 		Ogre::SceneNode* mSceneNode;
 		Ogre::ManualObject* mDummyRect;
@@ -52,12 +48,6 @@ namespace mk
 		
 		float mMouseX;
 		float mMouseY;
-	};
-
-	class MK_OG_EXPORT SpaceForm : public Form
-	{
-	public:
-		SpaceForm(SpaceViewport* viewport);
 	};
 }
 

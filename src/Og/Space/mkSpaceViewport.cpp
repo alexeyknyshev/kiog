@@ -5,8 +5,8 @@
 
 namespace mk
 {
-	SpaceViewport::SpaceViewport(Ogre::Camera* camera)
-		: WOgViewport(nullptr, camera)
+	SpaceViewport::SpaceViewport(UiWindow& uiWindow, Ogre::Camera* camera)
+		: WOgViewport(uiWindow, camera)
 	{}
 
 	InputReceiver* SpaceViewport::propagateMouse(float x, float y)
@@ -18,6 +18,6 @@ namespace mk
 		if(!object)
 			return mParent;
 
-		return object->as<SpaceSheet>();
+		return &object->as<SpaceSheet>();
 	}
 }

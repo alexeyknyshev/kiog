@@ -30,28 +30,47 @@ namespace Ogre
 
 namespace mk
 {
-	ImageRect makeRect(string& image, string& group)
+	ImageRect makeRect(const string& image, const string& group, const string& subfolder = "")
 	{
 		ImageRect ret;
 		Ogre::TexturePtr tex = Ogre::TextureManager::getSingletonPtr()->load(image, group);
 		ret.image = image;
+		ret.group = group;
+		ret.subfolder = subfolder;
 		ret.width = tex->getWidth();
 		ret.height = tex->getHeight();
+		Ogre::TextureManager::getSingletonPtr()->remove(tex->getHandle());
+		Ogre::TextureManager::getSingletonPtr()->unload(image);
 		return ret;
 	}
 
-	unique_ptr<GorillaAtlas> generateAtlas(Gorilla::Silverback* silverback, size_t atlasWidth, size_t atlasHeight, string spritegroup, string imagefontgroup, string gorillafontgroup, string gorillafontpath, string outputpath)
+	unique_ptr<GorillaAtlas> generateAtlas(Gorilla::Silverback& silverback, size_t atlasWidth, size_t atlasHeight, string resourcePath)
 	{
+		string imagefontgroup = "imagefonts";
+		string gorillafontgroup = "gorillafonts";
+		string spritegroup = "uisprites";
+
+		string gorillafontpath = resourcePath + "interface/gorillafonts/";
+		string outputpath = resourcePath + "interface/gorilla/";
+
+		unique_ptr<GorillaAtlas> atlas = make_unique<GorillaAtlas>(silverback, "uiatlas", atlasWidth, atlasHeight, outputpath);
+
 		Ogre::StringVectorPtr fonts = Ogre::ResourceGroupManager::getSingletonPtr()->listResourceNames(imagefontgroup);
 		Ogre::StringVectorPtr sprites = Ogre::ResourceGroupManager::getSingletonPtr()->listResourceNames(spritegroup);
+		Ogre::StringVectorPtr spritesubs = Ogre::ResourceGroupManager::getSingletonPtr()->listResourceNames(spritegroup, true);
 
-		unique_ptr<GorillaAtlas> atlas = make_unique<GorillaAtlas>(silverback, "uiatlas", atlasWidth, atlasHeight, outputpath, spritegroup);
-
-		for(string font : *fonts)
+		for(string& font : *fonts)
 			atlas->fonts().push_back(makeRect(font, imagefontgroup));
 
-		for(string sprite : *sprites)
+		for(string& sprite : *sprites)
 			atlas->sprites().push_back(makeRect(sprite, spritegroup));
+
+		for(string& spritefolder : *spritesubs)
+		{
+			Ogre::StringVectorPtr subsprites = Ogre::ResourceGroupManager::getSingletonPtr()->listResourceNames(spritefolder);
+			for(string& sprite : *subsprites)
+				atlas->sprites().push_back(makeRect(sprite, spritefolder, spritefolder + "/"));
+		}
 
 		atlas->createAtlas();
 		atlas->generateAtlas();
@@ -61,13 +80,12 @@ namespace mk
 		return atlas;
 	}
 
-	GorillaAtlas::GorillaAtlas(Gorilla::Silverback* silverback, string name, size_t width, size_t height, string path, string spriteGroup)
+	GorillaAtlas::GorillaAtlas(Gorilla::Silverback& silverback, string name, size_t width, size_t height, string path)
 		: mSilverback(silverback)
 		, mName(name)
 		, mWidth(width)
 		, mHeight(height)
 		, mPath(path)
-		, mSpriteGroup(spriteGroup)
 		, mRectPacker(width, height)
 	{}
 
@@ -164,14 +182,14 @@ namespace mk
 
 		file << "[Sprites]" << std::endl;
 		for(ImageRect& sprite : mSprites)
-			file << sprite.image << " " << sprite.x << " " << sprite.y << " " << sprite.width << " " << sprite.height << std::endl;
+				file << sprite.subfolder << sprite.image << " " << sprite.x << " " << sprite.y << " " << sprite.width << " " << sprite.height << std::endl;
 
 		file.close();
 	}
 
 	void GorillaAtlas::loadAtlas()
 	{
-		mAtlas = mSilverback->loadAtlas(mName, "gorilla");
+		mAtlas = mSilverback.loadAtlas(mName, "gorilla");
 	}
 
 	void GorillaAtlas::fitImage(ImageRect& image)
@@ -185,15 +203,19 @@ namespace mk
 
 		const Ogre::PixelBox& destPixelBox = texture->getBuffer()->lock(destBox, Ogre::HardwareBuffer::HBL_WRITE_ONLY);
 
-		Ogre::HardwarePixelBufferSharedPtr sourceBuffer = Ogre::TextureManager::getSingletonPtr()->getByName(image.image)->getBuffer();
+		Ogre::TexturePtr tex = Ogre::TextureManager::getSingletonPtr()->load(image.image, image.group);
+		Ogre::HardwarePixelBufferSharedPtr sourceBuffer = Ogre::TextureManager::getSingletonPtr()->getByName(image.image, image.group)->getBuffer();
 		sourceBuffer->blitToMemory(destPixelBox);
+		Ogre::TextureManager::getSingletonPtr()->remove(tex->getHandle());
+		Ogre::TextureManager::getSingletonPtr()->unload(image.image);
+		// @note these fucking ugly kludges are here to workaround Ogre being unable to have two textures with the same name in two different resource groups at the same time
 
 		texture->getBuffer()->unlock();
 	}
 
-	void GorillaAtlas::appendSprite(string name)
+	void GorillaAtlas::appendSprite(const string& name, const string& group)
 	{
-		mSprites.push_back(makeRect(name, mSpriteGroup));
+		mSprites.push_back(makeRect(name, group));
 
 		ImageRect& sprite = mSprites.back();
 
@@ -203,53 +225,53 @@ namespace mk
 		mAtlas->addSprite(name, sprite.x, sprite.y, sprite.width, sprite.height);
 	}
 
-	void GorillaAtlas::defineSprite(string name, float left, float top, float width, float height)
+	void GorillaAtlas::defineSprite(const string& name, float left, float top, float width, float height)
 	{
 		mAtlas->addSprite(name, left, top, width, height);
 	}
 
-	GorillaLayer::GorillaLayer(GorillaTarget* target, Gorilla::Layer* layer)
-		: mTarget(target)
+	GorillaLayer::GorillaLayer(GorillaTarget& target, Gorilla::Layer& layer, size_t index)
+		: InkLayer(target, index)
+		, mTarget(target)
 		, mLayer(layer)
 	{}
 
 	GorillaLayer::~GorillaLayer()
 	{
-		mTarget->screen()->destroy(mLayer);
+		mTarget.screen().destroy(&mLayer);
 	}
 
-	unique_ptr<Inkbox> GorillaLayer::inkbox(Frame* frame)
+	void GorillaLayer::moved(size_t index)
 	{
-		return make_unique<GorillaInk>(frame, this);
+		mTarget.screen().moveLayer(&mLayer, index);
+	}
+
+	unique_ptr<Inkbox> GorillaLayer::createInkbox(Frame& frame)
+	{
+		return make_unique<GorillaInk>(frame, *this);
 	}
 
 	void GorillaLayer::show()
 	{
-		mLayer->show();
-		//this->moveToTop();
+		mLayer.show();
 	}
 
 	void GorillaLayer::hide()
 	{
-		mLayer->hide();
+		mLayer.hide();
 	}
 
-	void GorillaLayer::moveToTop()
-	{
-		mTarget->screen()->moveLayer(mLayer, mTarget->zmax());
-	}
-
-	GorillaTarget::GorillaTarget(Gorilla::LayerContainer* screen)
+	GorillaTarget::GorillaTarget(Gorilla::LayerContainer& screen)
 		: mScreen(screen)
 		, mZMax(0)
 	{}
 
-	unique_ptr<InkLayer> GorillaTarget::layer(Frame* frame, size_t z)
+	unique_ptr<InkLayer> GorillaTarget::createLayer(Frame& frame, size_t z)
 	{
-		return make_unique<GorillaLayer>(this, mScreen->createLayer(z == 0 ? mZMax++ : z));
+		return make_unique<GorillaLayer>(*this, *mScreen.createLayer(z), z);
 	}
 
-	GorillaSpaceTarget::GorillaSpaceTarget(Gorilla::ScreenRenderable* spaceScreen)
+	GorillaSpaceTarget::GorillaSpaceTarget(Gorilla::ScreenRenderable& spaceScreen)
 		: GorillaTarget(spaceScreen)
 		, mSpaceScreen(spaceScreen)
 	{}
@@ -259,19 +281,19 @@ namespace mk
 
 	void GorillaSpaceTarget::redraw()
 	{
-		mSpaceScreen->_requestIndexRedraw(0);
+		mSpaceScreen._requestIndexRedraw(0);
 	}
 
-	GorillaWindow::GorillaWindow(OgreWindow* ogreWindow)
-		: mSceneManager(ogreWindow->ogreModule()->ogreRoot()->createSceneManager(Ogre::ST_GENERIC, 1, Ogre::INSTANCING_CULLING_SINGLETHREAD))
-		, mCamera(mSceneManager->createCamera("GorillaUi"))
+	GorillaWindow::GorillaWindow(OgreWindow& ogreWindow)
+		: mSceneManager(*ogreWindow.ogreModule().ogreRoot().createSceneManager(Ogre::ST_GENERIC, 1, Ogre::INSTANCING_CULLING_SINGLETHREAD))
+		, mCamera(*mSceneManager.createCamera("GorillaUi"))
 		, mSilverback(make_unique<Gorilla::Silverback>())
 		, mAtlasWidth(1024)
 		, mAtlasHeight(1024)
 	{
-		mAtlas = generateAtlas(mSilverback.get(), mAtlasWidth, mAtlasHeight, "uisprites", "imagefonts", "gorillafonts", "../data/interface/gorillafonts/", "../data/interface/gorilla/");
+		mAtlas = generateAtlas(*mSilverback.get(), mAtlasWidth, mAtlasHeight, ogreWindow.ogreModule().resourcePath());
 
-		mScreenTarget = make_unique<GorillaTarget>(mSilverback->createScreen(mSceneManager, ogreWindow->context(), "uiatlas"));
+		mScreenTarget = make_unique<GorillaTarget>(*mSilverback->createScreen(&mSceneManager, &ogreWindow.context(), "uiatlas"));
 	}
 
 	GorillaWindow::~GorillaWindow()
@@ -280,24 +302,24 @@ namespace mk
 	void GorillaWindow::nextFrame()
 	{}
 
-	InkTarget* GorillaWindow::screenTarget()
+	InkTarget& GorillaWindow::screenTarget()
 	{
-		return mScreenTarget.get();
+		return *mScreenTarget.get();
 	}
 
-	InkTarget* GorillaWindow::spaceTarget(Ogre::SceneManager* sceneMgr, int width, int height)
+	InkTarget& GorillaWindow::spaceTarget(Ogre::SceneManager* sceneMgr, int width, int height)
 	{
-		mSpaceTargets.emplace_back(make_unique<GorillaSpaceTarget>(mSilverback->createScreenRenderable(sceneMgr, Ogre::Vector2(width, height), "uiatlas")));
-		return mSpaceTargets.back().get();
+		mSpaceTargets.emplace_back(make_unique<GorillaSpaceTarget>(*mSilverback->createScreenRenderable(sceneMgr, Ogre::Vector2(width, height), "uiatlas")));
+		return *mSpaceTargets.back().get();
 	}
 
-	void GorillaWindow::releaseTarget(InkTarget* target)
+	void GorillaWindow::releaseTarget(InkTarget& target)
 	{
 		size_t pos = 0;
-		while(mSpaceTargets[pos].get() != target)
+		while(mSpaceTargets[pos].get() != &target)
 			++pos;
 
-		mSilverback->destroyScreenRenderable(mSpaceTargets[pos]->spaceScreen());
+		mSilverback->destroyScreenRenderable(&mSpaceTargets[pos]->spaceScreen());
 		mSpaceTargets.erase(mSpaceTargets.begin() + pos);
 	}
 }

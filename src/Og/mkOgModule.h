@@ -12,23 +12,25 @@
 
 namespace mk
 {
-	MK_OG_EXPORT void createOgTestUi(Form* parent);
+	MK_OG_EXPORT void createOgTestUi(Form& parent);
 
-	class MK_OG_EXPORT OgWindow : public Object, public Typed<OgWindow>
+	class MK_OG_EXPORT OgWindow : public Object
 	{
 	public:
-		OgWindow(OgModule* front, const string& name, int width, int height, bool fullScreen, User* user = nullptr);
+		OgWindow(OgModule& front, const string& name, int width, int height, bool fullScreen, User* user = nullptr);
 		~OgWindow();
 
 		bool nextFrame();
 
-		OgModule* frontModule() { return mOgModule; }
-		OgreWindow* ogreWindow() { return mOgreWindow.get(); }
-		GorillaWindow* gorillaWindow() { return mGorillaWindow.get(); }
-		UiWindow* uiWindow() { return mUiWindow.get(); }
+		OgModule& frontModule() { return mOgModule; }
+		OgreWindow& ogreWindow() { return *mOgreWindow.get(); }
+		GorillaWindow& gorillaWindow() { return *mGorillaWindow.get(); }
+		UiWindow& uiWindow() { return *mUiWindow.get(); }
+
+		static Type& cls() { static Type ty; return ty; }
 
 	private:
-		OgModule* mOgModule;
+		OgModule& mOgModule;
 		unique_ptr<UiWindow> mUiWindow;
 		unique_ptr<OgreWindow> mOgreWindow;
 		unique_ptr<GorillaWindow> mGorillaWindow;
@@ -36,7 +38,7 @@ namespace mk
 		unique_ptr<Uibox> mCursorBox;
 	};
 
-    class MK_OG_EXPORT OgModule : public Object, public Typed<OgModule>
+    class MK_OG_EXPORT OgModule : public Object
     {
     public:
         OgModule(const string& pluginsPath = "plugins.cfg", const string& resourcePath = "");
@@ -47,14 +49,16 @@ namespace mk
 
         bool nextFrame();
 
-		OISInput* input() { return mInput.get(); }
+		OISInput& input() { return *mInput.get(); }
 
-		OgWindow* createWindow(const string& name, int width, int height, bool fullScreen, User* user = nullptr);
+		OgWindow& createWindow(const string& name, int width, int height, bool fullScreen, User* user = nullptr);
 
-		OgreModule* ogreModule() { return mOgreModule.get(); }
+		OgreModule& ogreModule() { return *mOgreModule.get(); }
 #ifdef KIOG_SOUND
 		SoundManager* soundManager() { return mSoundManager.get(); }
 #endif
+
+		static Type& cls() { static Type ty; return ty; }
 
     private:
 		unique_ptr<OgreModule> mOgreModule;

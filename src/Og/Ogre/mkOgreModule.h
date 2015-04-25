@@ -10,6 +10,7 @@
 #include <Og/mkOgForward.h>
 #include <Ui/mkRenderWindow.h>
 
+#include <OgreRoot.h>
 #include <OgreWindowEventUtilities.h>
 
 namespace mk
@@ -21,7 +22,7 @@ namespace mk
 	class MK_OG_EXPORT OgreWindow : public RenderWindow, public Ogre::WindowEventListener
 	{
 	public:
-		OgreWindow(OgreModule* module, UiWindow* uiWindow, Ogre::RenderWindow* context);
+		OgreWindow(OgreModule& module, UiWindow& uiWindow, Ogre::RenderWindow& context);
 		~OgreWindow();
 
 		void updateSize();
@@ -30,22 +31,23 @@ namespace mk
 		void windowFocusChange(Ogre::RenderWindow* renderWindow);
 		void windowClosed(Ogre::RenderWindow* renderWindow);
 
-		OgreModule* ogreModule() { return mModule; }
-		Ogre::RenderWindow* context() { return mContext; }
+		OgreModule& ogreModule() { return mModule; }
+		Ogre::RenderWindow& context() { return mContext; }
 
 	protected:
-		OgreModule* mModule;
-		UiWindow* mWindow;
-		Ogre::RenderWindow* mContext;
+		OgreModule& mModule;
+		UiWindow& mWindow;
+		Ogre::RenderWindow& mContext;
 	};
 
-	class MK_OG_EXPORT _I_ OgreModule : public Object, public Typed<OgreModule>
+	class MK_OG_EXPORT _I_ OgreModule : public Object
 	{
 	public:
 		OgreModule(const string& pluginsPath = "plugins.cfg", const string& resourcePath = "");
 		~OgreModule();
 
-		Ogre::Root* ogreRoot() { return mOgreRoot; }
+		Ogre::Root& ogreRoot() { return mOgreRoot; }
+		const string& resourcePath() { return mResourcePath; }
 		bool contextActive() { return mContextActive; }
 
 		void initStart();
@@ -57,9 +59,11 @@ namespace mk
 
 		void nextFrame();
 
-		unique_ptr<OgreWindow> createWindow(UiWindow* window, const string& name, int width, int height, bool fullScreen);
+		unique_ptr<OgreWindow> createWindow(UiWindow& window, const string& name, int width, int height, bool fullScreen);
 
 		void focusChange() { mContextActive = !mContextActive; }
+
+		static Type& cls() { static Type ty; return ty; }
 
 	private:
 		void setupResources();
@@ -70,7 +74,7 @@ namespace mk
 		void loadResources();
 
 	private:
-		Ogre::Root* mOgreRoot;
+		Ogre::Root mOgreRoot;
 		string mResourcePath;
 		bool mContextActive;
 	};

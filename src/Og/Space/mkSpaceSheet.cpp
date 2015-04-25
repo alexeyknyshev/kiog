@@ -7,6 +7,8 @@
 
 #include <Ui/Form/mkRootForm.h>
 
+#include <Ui/Frame/mkLayer.h>
+
 #include <Og/Space/mkSpaceViewport.h>
 #include <Og/Gorilla/mkGorillaWindow.h>
 #include <Og/Gorilla/Gorilla.h>
@@ -43,15 +45,17 @@ namespace mk
 		return result;
 	}
 
-	SpaceSheet::SpaceSheet(SpaceViewport* viewport, Form* form)
-		: RootSheet(form->rootForm()->uiWindow(), form, false)
+	SpaceSheet::SpaceSheet(SpaceViewport& viewport)
+		: RootSheet(viewport.uiWindow(), nullptr, false)
 		, mViewport(viewport)
+		, mTarget(uiWindow().inkWindow().as<GorillaWindow>().spaceTarget(mViewport.ogreCamera()->getParentSceneNode()->getCreator(), 0, 0).as<GorillaSpaceTarget>())
 	{
-		mStyle = styleCls();
+		mStyle = &cls();
 
-		mTarget = this->uiWindow()->inkWindow()->as<GorillaWindow>()->spaceTarget(mViewport->ogreCamera()->getParentSceneNode()->getCreator(), 0, 0)->as<GorillaSpaceTarget>();
-		mOgreCamera = mViewport->ogreCamera();
-		mSceneNode = mTarget->spaceScreen()->getParentSceneNode();
+		mFrame = make_unique<Layer3D>(*this, 0, &mTarget);
+		
+		mOgreCamera = mViewport.ogreCamera();
+		mSceneNode = mTarget.spaceScreen().getParentSceneNode();
 		mSceneNode->getUserObjectBindings().setUserAny(Ogre::Any(static_cast<Object*>(this)));
 		mDummyRect = mSceneNode->getCreator()->createManualObject();
 		mSceneNode->attachObject(mDummyRect);
@@ -65,7 +69,9 @@ namespace mk
 		mDummyRect->index(0);
 		mDummyRect->end();
 
-		mTarget->spaceScreen()->ratio() = 0.01f;
+		mTarget.spaceScreen().ratio() = 0.01f;
+
+		//this->updateSize();
 	}
 
 	SpaceSheet::~SpaceSheet()
@@ -73,14 +79,7 @@ namespace mk
 		Sheet::clear(); // @kludge : destroy the contents now because layer() is a virtual function and is needed in the destructor
 		this->cleanup();
 		mFrame.reset();
-		this->uiWindow()->inkWindow()->as<GorillaWindow>()->releaseTarget(mTarget);
-	}
-
-	void SpaceSheet::build()
-	{
-		RootSheet::build();
-
-		this->updateSize();
+		this->uiWindow().inkWindow().as<GorillaWindow>().releaseTarget(mTarget);
 	}
 
 	void SpaceSheet::nextFrame(size_t tick, size_t delta)
@@ -97,25 +96,25 @@ namespace mk
 
 	void SpaceSheet::updateSize()
 	{
-		mTarget->spaceScreen()->maxSize().x = mFrame->dsize(DIM_X);
-		mTarget->spaceScreen()->maxSize().y = mFrame->dsize(DIM_Y);
+		mTarget.spaceScreen().maxSize().x = mFrame->dsize(DIM_X);
+		mTarget.spaceScreen().maxSize().y = mFrame->dsize(DIM_Y);
 
 		mDummyRect->beginUpdate(0);
-		float x = mFrame->dsize(DIM_X) * mTarget->spaceScreen()->ratio();
-		float y = mFrame->dsize(DIM_Y) * mTarget->spaceScreen()->ratio();
+		float x = mFrame->dsize(DIM_X) * mTarget.spaceScreen().ratio();
+		float y = mFrame->dsize(DIM_Y) * mTarget.spaceScreen().ratio();
 		quadXY(mDummyRect, -x/2.f, -y/2.f, x, y, 0U);
 		mDummyRect->end();
 	}
 
 	void SpaceSheet::transformCoordinates(float& x, float &y)
 	{
-		x -= mViewport->frame()->dabsolute(DIM_X);
-		y -= mViewport->frame()->dabsolute(DIM_Y);
+		x -= mViewport.frame().dabsolute(DIM_X);
+		y -= mViewport.frame().dabsolute(DIM_Y);
 
 		Ogre::Vector3 rayOrigin;
 		Ogre::Vector3 rayDir;
 
-		mViewport->viewportRay(x, y, &rayOrigin[0], &rayDir[0]);
+		mViewport.viewportRay(x, y, &rayOrigin[0], &rayDir[0]);
 
 		Ogre::Vector3 p0 = mSceneNode->getPosition();
 		Ogre::Vector3 p1 = mSceneNode->getOrientation().xAxis();
@@ -125,8 +124,8 @@ namespace mk
 
 		Ogre::Vector3 rel = mSceneNode->getOrientation().Inverse() * (pos - mSceneNode->getPosition());
 
-		x = rel.x / mTarget->spaceScreen()->ratio() + mFrame->dsize(DIM_X) / 2.f;
-		y = -rel.y / mTarget->spaceScreen()->ratio() + mFrame->dsize(DIM_Y) / 2.f;
+		x = rel.x / mTarget.spaceScreen().ratio() + mFrame->dsize(DIM_X) / 2.f;
+		y = -rel.y / mTarget.spaceScreen().ratio() + mFrame->dsize(DIM_Y) / 2.f;
 	}
 
 	InputReceiver* SpaceSheet::propagateMouse(float x, float y)
@@ -140,8 +139,4 @@ namespace mk
 			return this;
 		return Widget::pinpoint(x, y, modal);
 	}
-
-	SpaceForm::SpaceForm(SpaceViewport* viewport)
-		: Form(nullptr, "", [viewport, this](){ return make_unique<SpaceSheet>(viewport, this); })
-	{}
 }

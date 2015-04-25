@@ -11,7 +11,7 @@ namespace mk
 	class MK_OG_EXPORT SpaceViewport : public WOgViewport
 	{
 	public:
-		SpaceViewport(Ogre::Camera* camera);
+		SpaceViewport(UiWindow& uiWindow, Ogre::Camera* camera);
 
 		void leftPicked(Object* object, bool shift, float x, float y) {}
 		void rightPicked(Object* object, bool shift, float x, float y) {}
