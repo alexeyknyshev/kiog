@@ -16,27 +16,27 @@ namespace mk
 {
     class MK_OG_EXPORT OISInput : public InputWindow, public OIS::KeyListener, public OIS::MouseListener
     {
-	public:
+    public:
         OISInput();
         virtual ~OISInput();
 
-		void initInput(InputDispatcher* dispatcher, size_t windowHnd);
-		void setupInput(size_t windowHnd);
-		void destroyInput();
+        void initInput(InputDispatcher* dispatcher, size_t windowHnd);
+        void setupInput(size_t windowHnd);
+        void destroyInput();
 
         bool nextFrame();
-		void resize(size_t width, size_t height);
+        void resize(size_t width, size_t height);
 
-		//virtual void updateSize() = 0;
+        //virtual void updateSize() = 0;
 
-		// OISInput::InputListener
+        // OISInput::InputListener
         bool mouseMoved(const OIS::MouseEvent &arg);
         bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
         bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
         bool keyPressed(const OIS::KeyEvent &arg);
         bool keyReleased(const OIS::KeyEvent &arg);
 
-		char getChar(const OIS::KeyEvent &arg);
+        char getChar(const OIS::KeyEvent &arg);
 
     protected:
         /** Input Library components **/
@@ -44,9 +44,9 @@ namespace mk
         OIS::Mouse* mMouse;
         OIS::Keyboard* mKeyboard;
 
-		InputDispatcher* mDispatcher;
+        InputDispatcher* mDispatcher;
 
-		std::map<OIS::MouseButtonID, bool> mPressed;
+        std::map<OIS::MouseButtonID, bool> mPressed;
         bool mShutdownRequested;
     };
 
