@@ -82,11 +82,15 @@ void SkylineBinPack::Insert(std::vector<RectSize> &rects, std::vector<BPRect> &d
 			{
 			case LevelBottomLeft:
 				newNode = FindPositionForNewNodeBottomLeft(rects[i].width, rects[i].height, score1, score2, index);
+#ifdef _DEBUG
 				assert(disjointRects.Disjoint(newNode));
+#endif
 				break;
 			case LevelMinWasteFit:
 				newNode = FindPositionForNewNodeMinWaste(rects[i].width, rects[i].height, score2, score1, index);
+#ifdef _DEBUG
 				assert(disjointRects.Disjoint(newNode));
+#endif
 				break;
 			default: assert(false); break;
 			}
@@ -107,8 +111,8 @@ void SkylineBinPack::Insert(std::vector<RectSize> &rects, std::vector<BPRect> &d
 			return;
 
 		// Perform the actual packing.
-		assert(disjointRects.Disjoint(bestNode));
 #ifdef _DEBUG
+		assert(disjointRects.Disjoint(bestNode));
 		disjointRects.Add(bestNode);
 #endif
 		AddSkylineLevel(bestSkylineIndex, bestNode);
@@ -123,7 +127,9 @@ BPRect SkylineBinPack::Insert(int width, int height, LevelChoiceHeuristic method
 	// First try to pack this rectangle into the waste map, if it fits.
 	BPRect node = wasteMap.Insert(width, height, true, GuillotineBinPack::RectBestShortSideFit, 
 		GuillotineBinPack::SplitMaximizeArea);
+#ifdef _DEBUG
 	assert(disjointRects.Disjoint(node));
+#endif
 
 	if (node.height != 0)
 	{
@@ -133,8 +139,8 @@ BPRect SkylineBinPack::Insert(int width, int height, LevelChoiceHeuristic method
 		newNode.width = node.width;
 		newNode.height = node.height;
 		usedSurfaceArea += width * height;
-		assert(disjointRects.Disjoint(newNode));
 #ifdef _DEBUG
+		assert(disjointRects.Disjoint(newNode));
 		disjointRects.Add(newNode);
 #endif
 		return newNode;
@@ -215,7 +221,9 @@ void SkylineBinPack::AddWasteMapArea(int skylineNodeIndex, int width, int height
 		waste.width = rightSide - leftSide;
 		waste.height = y - skyLine[skylineNodeIndex].y;
 
+#ifdef _DEBUG
 		assert(disjointRects.Disjoint(waste));
+#endif
 		wasteMap.GetFreeRectangles().push_back(waste);
 	}
 }
@@ -280,7 +288,9 @@ BPRect SkylineBinPack::InsertBottomLeft(int width, int height)
 
 	if (bestIndex != -1)
 	{
+#ifdef _DEBUG
 		assert(disjointRects.Disjoint(newNode));
+#endif
 		// Perform the actual packing.
 		AddSkylineLevel(bestIndex, newNode);
 
@@ -317,7 +327,9 @@ BPRect SkylineBinPack::FindPositionForNewNodeBottomLeft(int width, int height, i
 				newNode.y = y;
 				newNode.width = width;
 				newNode.height = height;
+#ifdef _DEBUG
 				assert(disjointRects.Disjoint(newNode));
+#endif
 			}
 		}
 	}
@@ -334,7 +346,9 @@ BPRect SkylineBinPack::InsertMinWaste(int width, int height)
 
 	if (bestIndex != -1)
 	{
+#ifdef _DEBUG
 		assert(disjointRects.Disjoint(newNode));
+#endif
 		// Perform the actual packing.
 		AddSkylineLevel(bestIndex, newNode);
 
@@ -372,7 +386,9 @@ BPRect SkylineBinPack::FindPositionForNewNodeMinWaste(int width, int height, int
 				newNode.y = y;
 				newNode.width = width;
 				newNode.height = height;
+#ifdef _DEBUG
 				assert(disjointRects.Disjoint(newNode));
+#endif
 			}
 		}
 	}

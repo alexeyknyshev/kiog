@@ -131,8 +131,10 @@ void GuillotineBinPack::Insert(std::vector<RectSize> &rects, std::vector<BPRect>
 		// Remember the new used rectangle.
 		usedRectangles.push_back(newNode);
 
+#ifdef _DEBUG
 		// Check that we're really producing correct packings here.
 		assert(disjointRects.Add(newNode) == true);
+#endif
 	}
 }
 
@@ -173,7 +175,9 @@ BPRect GuillotineBinPack::Insert(int width, int height, bool merge, FreeRectChoi
 	usedRectangles.push_back(newRect);
 
 	// Check that we're really producing correct packings here.
+#ifdef _DEBUG
 	assert(disjointRects.Add(newRect) == true);
+#endif
 
 	return newRect;
 }
@@ -260,7 +264,9 @@ BPRect GuillotineBinPack::FindPositionForNewNode(int width, int height, FreeRect
 			bestNode.height = height;
 			bestScore = std::numeric_limits<int>::min();
 			*nodeIndex = i;
+#ifdef _DEBUG
 			assert(disjointRects.Disjoint(bestNode));
+#endif
 			break;
 		}
 		// If this is a perfect fit sideways, choose it.
@@ -273,7 +279,9 @@ BPRect GuillotineBinPack::FindPositionForNewNode(int width, int height, FreeRect
 			bestNode.height = width;
 			bestScore = std::numeric_limits<int>::min();
 			*nodeIndex = i;
+#ifdef _DEBUG
 			assert(disjointRects.Disjoint(bestNode));
+#endif
 			break;
 		}
 		*/
@@ -290,7 +298,9 @@ BPRect GuillotineBinPack::FindPositionForNewNode(int width, int height, FreeRect
 				bestNode.height = height;
 				bestScore = score;
 				*nodeIndex = i;
+#ifdef _DEBUG
 				assert(disjointRects.Disjoint(bestNode));
+#endif
 			}
 		}
 		// Does the rectangle fit sideways?
@@ -307,7 +317,9 @@ BPRect GuillotineBinPack::FindPositionForNewNode(int width, int height, FreeRect
 				bestNode.height = width;
 				bestScore = score;
 				*nodeIndex = i;
+#ifdef _DEBUG
 				assert(disjointRects.Disjoint(bestNode));
+#endif
 			}
 		}
 		*/
@@ -397,8 +409,10 @@ void GuillotineBinPack::SplitFreeRectAlongAxis(const BPRect &freeRect, const BPR
 	if (right.width > 0 && right.height > 0)
 		freeRectangles.push_back(right);
 
+#ifdef _DEBUG
 	assert(disjointRects.Disjoint(bottom));
 	assert(disjointRects.Disjoint(right));
+#endif
 }
 
 void GuillotineBinPack::MergeFreeList()
