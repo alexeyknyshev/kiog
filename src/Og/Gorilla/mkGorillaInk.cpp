@@ -301,11 +301,14 @@ namespace mk
 		float width = mFrame.dclipsize(DIM_X) - skin().margin().x0() - skin().margin().x1() - skin().borderWidth().x0() - skin().borderWidth().x1();
 		float height = mFrame.dclipsize(DIM_Y) - skin().margin().y0() - skin().margin().y1() - skin().borderWidth().y0() - skin().borderWidth().y1();
 
-		mRect->left(left);
-		mRect->top(top);
+		if(mRect)
+		{
+			mRect->left(left);
+			mRect->top(top);
 
-		mRect->width(width);
-		mRect->height(height);
+			mRect->width(width);
+			mRect->height(height);
+		}
 
 		if(mCaption)
 		{
