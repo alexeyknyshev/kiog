@@ -50,7 +50,7 @@ private:
 	int binWidth;
 	int binHeight;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	DisjointRectCollection disjointRects;
 #endif
 

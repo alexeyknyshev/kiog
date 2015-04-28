@@ -42,7 +42,7 @@ void SkylineBinPack::Init(int width, int height, bool useWasteMap_)
 
 	useWasteMap = useWasteMap_;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	disjointRects.Clear();
 #endif
 
@@ -108,7 +108,7 @@ void SkylineBinPack::Insert(std::vector<RectSize> &rects, std::vector<BPRect> &d
 
 		// Perform the actual packing.
 		assert(disjointRects.Disjoint(bestNode));
-#ifdef _DEBUG
+#ifndef NDEBUG
 		disjointRects.Add(bestNode);
 #endif
 		AddSkylineLevel(bestSkylineIndex, bestNode);
@@ -134,7 +134,7 @@ BPRect SkylineBinPack::Insert(int width, int height, LevelChoiceHeuristic method
 		newNode.height = node.height;
 		usedSurfaceArea += width * height;
 		assert(disjointRects.Disjoint(newNode));
-#ifdef _DEBUG
+#ifndef NDEBUG
 		disjointRects.Add(newNode);
 #endif
 		return newNode;
@@ -285,7 +285,7 @@ BPRect SkylineBinPack::InsertBottomLeft(int width, int height)
 		AddSkylineLevel(bestIndex, newNode);
 
 		usedSurfaceArea += width * height;
-#ifdef _DEBUG
+#ifndef NDEBUG
 		disjointRects.Add(newNode);
 #endif
 	}
@@ -339,7 +339,7 @@ BPRect SkylineBinPack::InsertMinWaste(int width, int height)
 		AddSkylineLevel(bestIndex, newNode);
 
 		usedSurfaceArea += width * height;
-#ifdef _DEBUG
+#ifndef NDEBUG
 		disjointRects.Add(newNode);
 #endif
 	}

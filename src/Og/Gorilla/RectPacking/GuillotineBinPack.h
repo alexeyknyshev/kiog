@@ -98,7 +98,7 @@ private:
 	/// Stores a list of rectangles that represents the free area of the bin. This rectangles in this list are disjoint.
 	std::vector<BPRect> freeRectangles;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	/// Used to track that the packer produces proper packings.
 	DisjointRectCollection disjointRects;
 #endif

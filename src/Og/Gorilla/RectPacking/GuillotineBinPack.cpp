@@ -39,7 +39,7 @@ void GuillotineBinPack::Init(int width, int height)
 	binWidth = width;
 	binHeight = height;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	disjointRects.Clear();
 #endif
 
