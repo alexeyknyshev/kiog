@@ -230,10 +230,10 @@ namespace mk
 		mAtlas->addSprite(name, left, top, width, height);
 	}
 
-	GorillaLayer::GorillaLayer(GorillaTarget& target, Gorilla::Layer& layer, size_t index)
-		: InkLayer(target, index)
+	GorillaLayer::GorillaLayer(Layer& layer, GorillaTarget& target, size_t index)
+		: InkLayer(layer, target, index)
 		, mTarget(target)
-		, mLayer(layer)
+		, mLayer(*target.screen().createLayer(index))
 	{}
 
 	GorillaLayer::~GorillaLayer()
@@ -262,13 +262,13 @@ namespace mk
 	}
 
 	GorillaTarget::GorillaTarget(Gorilla::LayerContainer& screen)
-		: mScreen(screen)
-		, mZMax(0)
+		: InkTarget(15)
+		, mScreen(screen)
 	{}
 
-	unique_ptr<InkLayer> GorillaTarget::createLayer(Frame& frame, size_t z)
+	unique_ptr<InkLayer> GorillaTarget::createLayer(Layer& layer, size_t z)
 	{
-		return make_unique<GorillaLayer>(*this, *mScreen.createLayer(z), z);
+		return make_unique<GorillaLayer>(layer, *this, z);
 	}
 
 	GorillaSpaceTarget::GorillaSpaceTarget(Gorilla::ScreenRenderable& spaceScreen)

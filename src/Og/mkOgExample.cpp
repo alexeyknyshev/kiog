@@ -89,7 +89,7 @@ namespace mk
 		SpaceViewport::cls().layout().d_space = BOARD;
 		SpaceViewport::cls().layout().d_opacity = static_cast<Opacity>(0); // OPAQUE
 		SpaceSheet::cls().layout().d_opacity = static_cast<Opacity>(0); // OPAQUE
-		SpaceSheet::cls().layout().d_flow = MANUAL;
+		SpaceSheet::cls().layout().d_flow = OVERLAY;
 		SpaceSheet::cls().layout().d_size = DimFloat(600.f, 450.f);
 
 		Ogre::Camera* camera = prepareOgreScene();
@@ -128,6 +128,6 @@ namespace mk
 		demoheader.emplace<Label>("Pick a demo sample : ");
 		demoheader.emplace<Dropdown>(std::bind(&pickOgSample, std::ref(demobody), std::placeholders::_1), samples);
 		demoheader.emplace<Label>("Switch theme : ");
-		demoheader.emplace<Dropdown>(std::bind(&switchUiTheme, std::ref(demobody), std::placeholders::_1), StringVector({ "Blendish", "Blendish Dark", "TurboBadger", "MyGui", "Photoshop", "Default" }));
+		demoheader.emplace<Dropdown>(std::bind(&selectUiTheme, std::ref(demobody), std::placeholders::_1), StringVector({ "Blendish", "Blendish Dark", "TurboBadger", "MyGui", "Photoshop", "Default" }));
 	}
 }

@@ -66,7 +66,7 @@ namespace mk
 	class MK_OG_EXPORT GorillaLayer : public InkLayer
 	{
 	public:
-		GorillaLayer(GorillaTarget& target, Gorilla::Layer& layer, size_t index);
+		GorillaLayer(Layer& layer, GorillaTarget& target, size_t index);
 		~GorillaLayer();
 
 		Gorilla::Layer& layer() { return mLayer; }
@@ -88,13 +88,11 @@ namespace mk
 		GorillaTarget(Gorilla::LayerContainer& screen);
 
 		Gorilla::LayerContainer& screen() { return mScreen; }
-		size_t zmax() { return mZMax; }
 
-		unique_ptr<InkLayer> createLayer(Frame& frame, size_t z);
+		unique_ptr<InkLayer> createLayer(Layer& layer, size_t z);
 
 	protected:
 		Gorilla::LayerContainer& mScreen;
-		size_t mZMax;
 	};
 
 	class MK_OG_EXPORT GorillaSpaceTarget : public GorillaTarget
