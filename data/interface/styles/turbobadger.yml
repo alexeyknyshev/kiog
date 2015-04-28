@@ -1,5 +1,5 @@
 Clear :
-    text_colour : 1.0,1.0,1.0,1.0
+    text_colour : 1.0,1.0,1.0,0.0
     
 Label :
     text_colour : 1.0,1.0,1.0,1.0
@@ -23,15 +23,27 @@ WindowHeader :
     padding : 10.0,2.0,10.0,2.0
     image_skin : tbb/window_mover_overlay, 7, 7, 7, 7, 3
     align : LEFT, CENTER
+    tile : tbb/window_mover_bg_tile
+    
+WindowFooter :
+    flow : OVERLAY
+    space : BOARD
+    pivot : FORWARD, REVERSE
+    align : LEFT, LEFT
+    
+WindowSizerLeft :
+    opacity : VOID
+    
+WindowSizerRight :
+    image : tbb/resizer
+    align : RIGHT, RIGHT
+    space : SPACE
     
 WindowBody :
-    padding : 10.0,4.0,4.0,4.0
-    
-Tabber :
-    inherit_skin : Frame
+    padding : 10.0,4.0,10.0,10.0
     
 Tab :
-    inherit_skin : Container
+    inherit_skin : Frame
     
 TabHeader :
     inherit_skin : Label
@@ -51,6 +63,9 @@ ExpandboxToggle :
     activated :
         image : tbb/toggle_section_icon_down
         
+TreeNodeToggle :
+    copy_skin : ExpandboxToggle
+    
 Checkbox :
     inherit_skin : Clear
     image : tbb/checkbox
@@ -60,6 +75,7 @@ Checkbox :
         overlay : tbb/checkbox_activated
     
 CloseButton :
+    inherit_skin : Clear
     image : tbb/window_close
     decline_image : pressed
     
@@ -72,10 +88,11 @@ Button :
 Dropdown :
     copy_skin : Button
     
-DropdownBox :
+DropdownList :
     copy_skin : Frame
     
 DropdownToggle :
+    inherit_skin : Clear
     image : tbb/arrow_down
     
 TypeIn :
@@ -85,14 +102,22 @@ TypeIn :
 Typedown :
     copy_skin : TypeIn
     
+List :
+    image_skin : tbb/editfield, 12, 12, 12, 12, 4
+    
+SelectList :
+    image_skin : tbb/editfield, 12, 12, 12, 12, 4
+    
 ScrollUp :
-    image : tbb/empty
+    inherit_skin : Clear
+    space : BLOCK
     
 ScrollDown :
-    image : tbb/empty
+    inherit_skin : Clear
+    space : BLOCK
 
 Scrollbar :
-    padding : 4.0,4.0,4.0,4.0
+    padding : 8.0,0.0,0.0,0.0
     
 Scroller :
     size : 13.0,0.0
@@ -103,15 +128,18 @@ ScrollerKnobY :
     image_skin : tbb/scroll_fg_y, 11, 11, 11, 11, 5
     
 SliderX :
-    image_skin : tbb/slider_bg_x, 9, 9, 9, 9
+    image_skin : tbb/slider_bg_x, 9, 9, 9, 9, 0, DIM_X
+    align : LEFT, CENTER
     
 SliderKnobX :
     inherit_skin : Clear
     image : tbb/slider_handle
     
-DropdownChoice :
+WrapButton :
     inherit_skin : Clear
     hovered :
         image_skin : tbb/item_hover, 7, 7, 7, 7
+    pressed :
+        image_skin : tbb/item_selected, 7, 7, 7, 7
     activated :
         image_skin : tbb/item_selected, 7, 7, 7, 7

@@ -1,5 +1,5 @@
 Clear :
-    text_colour : 1.0,1.0,1.0,1.0
+    text_colour : 1.0,1.0,1.0,0.0
 
 Label :
     text_colour : 1.0,1.0,1.0,1.0
@@ -79,6 +79,19 @@ TabHeader :
     activated|hovered :
         background_colour : 0.337,0.502,0.761,1
         
+Tab :
+    background_colour : 0.09,0.09,0.09,1.0
+    border_colour : 0.275,0.275,0.275,1.0
+    border_width : 1.0,1.0,1.0,1.0
+    corner_radius : 0.0,4.0,4.0,4.0
+    padding : 6.0,6.0,6.0,6.0
+    
+DockTab :
+    inherit : Tab
+    inherit_skin : Clear
+    padding : 0.0,0.0,0.0,0.0
+    override : Dockspace, Tab
+    
 TableHead :
     corner_radius : 0.0,0.0,0.0,0.0
     
@@ -97,6 +110,7 @@ Window :
     border_colour : 0.275,0.275,0.275,1.0
     border_width : 1.0,1.0,1.0,1.0
     corner_radius : 10.0,10.0,10.0,10.0
+    shadow : 2.0,2.0,7.0,2.0
     
 WindowHeader :
     background_colour : 0.275,0.275,0.275,1.0
@@ -108,7 +122,7 @@ WindowHeader :
 WindowBody :
     padding : 10.0, 4.0, 4.0, 4.0
     
-WindowSizer :
+WindowFooter :
     background_colour : 0.275,0.275,0.275,1.0
     size : 0.0,8.0
     
@@ -138,7 +152,7 @@ Typedown:
     inherit_skin : TypeIn
     
 Checkbox :
-    inherit_skin : Toggle
+    copy_skin : Toggle
     size : 16.0,16.0
     skin_padding : 0.0,0.0,0.0,0.0
     
@@ -168,7 +182,8 @@ SliderX :
     corner_radius : 10.0,10.0,10.0,10.0
         
 SliderKnobX :
-    background_colour : 0.0,0.0,0.0,0.0
+    inherit_skin : Clear
+    flow : OVERLAY
     
 SliderDisplay :
     align : CENTER, CENTER
@@ -235,8 +250,11 @@ Tooltip :
         text_colour : 1.0,1.0,1.0,1.0
         background_colour : 0.176,0.176,0.176,0.902
 
-DropdownBox :
+DropdownList :
     inherit_skin : Tooltip
+    
+MenuList :
+    copy_skin : Tooltip
     
 DropdownLabel :
     inherit_skin : Label
@@ -244,7 +262,6 @@ DropdownLabel :
 DropdownToggle :
     inherit_skin : Clear
     image : blendish_updown
-    margin : 2.0,0.0
     skin_padding : 1.0,2.0,1.0,2.0
     
 DropdownChoice :
@@ -252,3 +269,11 @@ DropdownChoice :
         background_colour : 0.337,0.502,0.761,1
         topdown_gradient : -15,15
         text_colour : 0.0,0.0,0.0,1.0
+        
+MenuChoice :
+    inherit : Button
+    inherit_skin : DropdownChoice
+    copy_skin : Label
+    space : BLOCK
+    override : MenuList, Button
+    override : MenuList, Menu
