@@ -46,6 +46,8 @@ namespace mk
 
 		void updateContent();
 		void updateFrame();
+		void updateClip();
+		void updatePosition();
 		void updateStyle();
 
 		void show();

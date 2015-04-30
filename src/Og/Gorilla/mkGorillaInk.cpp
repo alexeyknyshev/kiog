@@ -43,7 +43,7 @@ namespace mk
 			return;
 
 		GorillaAtlas& gorillaAtlas = mInkbox.frame().widget().uiWindow().inkWindow().as<GorillaWindow>().gorillaAtlas();
-		Gorilla::Sprite& sprite = *mInkbox.layer().layer()._getSprite(skin.d_image + ".png");
+		Gorilla::Sprite& sprite = *mInkbox.layer().layer()._getSprite(skin.d_image.d_name + ".png");
 
 		float left = sprite.uvLeft * gorillaAtlas.width();
 		float top = sprite.uvTop * gorillaAtlas.height();
@@ -213,7 +213,7 @@ namespace mk
 	{
 		if(mImage)
 		{
-			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image() + ".png");
+			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image()->d_name + ".png");
 			float xoffset = skin().padding()[DIM_X] + skin().padding()[DIM_X + 2];
 			float yoffset = skin().padding()[DIM_Y] + skin().padding()[DIM_Y + 2];
 
@@ -290,6 +290,16 @@ namespace mk
 		// @todo add gradients
 	}
 
+	void GorillaInk::updateClip()
+	{
+		this->updateFrame();
+	}
+
+	void GorillaInk::updatePosition()
+	{
+		this->updateFrame();
+	}
+
 	void GorillaInk::updateFrame()
 	{
 		if(skin().mEmpty || !mVisible || mFrame.dsize(DIM_X) == 0.f || mFrame.dsize(DIM_Y) == 0.f)
@@ -338,21 +348,21 @@ namespace mk
 		if(skin().mEmpty || !mVisible)
 			return;
 
-		if(mImage && mFrame.widget().image().empty())
+		if(mImage && !mFrame.widget().image())
 		{
 			mLayer.layer().destroyRectangle(mImage);
 			mImage = nullptr;
 			return;
 		}
-		else if(!mImage && !mFrame.widget().image().empty())
+		else if(!mImage && mFrame.widget().image())
 		{
-			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image() + ".png");
+			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image()->d_name + ".png");
 			mImage = this->createRectangle(mFrame.dabsolute(DIM_X), mFrame.dabsolute(DIM_Y), sprite->spriteWidth, sprite->spriteHeight);
 		}
-		if(!mFrame.widget().image().empty())
+		if(mFrame.widget().image())
 		{
-			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image() + ".png");
-			mImage->background_image(Ogre::String(mFrame.widget().image() + ".png"));
+			Gorilla::Sprite* sprite = mLayer.layer()._getSprite(mFrame.widget().image()->d_name + ".png");
+			mImage->background_image(Ogre::String(mFrame.widget().image()->d_name + ".png"));
 			mImage->width(sprite->spriteWidth);
 			mImage->height(sprite->spriteHeight);
 		}
