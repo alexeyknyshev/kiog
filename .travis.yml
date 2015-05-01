@@ -13,8 +13,8 @@ install:
   - sudo apt-get install libxaw7-dev
   - sudo apt-get install libois-dev
   - if [ "$CXX" = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev; fi
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.9; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 before_script:
   - hg clone https://bitbucket.org/cabalistic/ogredeps
@@ -48,7 +48,8 @@ before_script:
   
 script:
   - cmake .. -DCMAKE_BUILD_TYPE=Release
-  - sudo cmake --build . --target install
+  - make VERBOSE=1
+  - sudo make install
 
 os:
   - linux
