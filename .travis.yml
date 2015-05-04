@@ -37,11 +37,11 @@ before_script:
   - make
   - sudo make install
   - cd ../../glfw/build
-  - cmake .. -DBUILD_SHARED_LIBS=ON
+  - cmake .. -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
   - make
   - sudo make install
   - cd ../../kiui/build
-  - cmake ..
+  - cmake .. -DKIUI_BUILD_EXAMPLE=OFF
   - make
   - sudo make install
   - cd ../../build
